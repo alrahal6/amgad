@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Map</title>
+<meta name="viewport" content="initial-scale=1.0">
+<meta charset="utf-8">
+
+
+<style>
+/* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+#map {
+	height: 100%;
+}
+/* Optional: Makes the sample page fill the window. */
+html,body { height: 100%;margin: 0;padding: 0; }
+
+.pac-card {
+	margin: 10px 10px 0 0;
+	border-radius: 2px 0 0 2px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	outline: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+	background-color: #fff;
+	font-family: Roboto;
+}
+
+#pac-container { padding-bottom: 12px;margin-right: 12px; }
+
+.pac-controls { display: inline-block;padding: 5px 11px; }
+
+.pac-controls label {
+	font-family: Roboto;
+	font-size: 13px;
+	font-weight: 300;
+}
+
+#pac-input {
+	background-color: #fff;
+	font-family: Roboto;
+	font-size: 25px;
+	font-weight: 300;
+	margin-left: 12px;
+	padding: 0 11px 0 13px;
+	text-overflow: ellipsis;
+	width: 400px;
+	height:30px;
+}
+
+#pac-input:focus { border-color: #4d90fe; }
+
+#title {
+	color: #fff;
+	background-color: #4d90fe;
+	font-size: 25px;
+	font-weight: 500;
+	padding: 6px 12px;
+}
+
+#target { width: 345px; }
+</style>
+</head>
+<body onload="initMap();">
+
+		<label for="radiusSelect">Radius:</label>
+        <select id="radiusSelect" label="Radius">
+          <option value="1" selected>1 kms</option>
+          <option value="2">2 kms</option>
+          <option value="3">3 kms</option>
+          <option value="4">4 kms</option>
+          <option value="5">5 kms</option>
+          <option value="6">6 kms</option>
+        </select>
+        <input id="pac-input" class="controls" type="text"
+		placeholder="Search Box"> 
+	<div id="map"></div>
+	<script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 15.5941137, lng: 32.5842569},
+          zoom: 12
+        });
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        // Bias the SearchBox results towards current map's viewport.
+        map.addListener('bounds_changed', function() {
+          searchBox.setBounds(map.getBounds());
+        });
+        var markers1 = [];
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place.
+        searchBox.addListener('places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+          getCars();
+          // Clear out the old markers.
+          markers1.forEach(function(marker) {
+            marker.setMap(null);
+          });
+          markers1 = [];
+          // For each place, get the icon, name and location.
+          var bounds = new google.maps.LatLngBounds();
+          places.forEach(function(place) {
+            if (!place.geometry) {
+              console.log("Returned place contains no geometry");
+              return;
+            }
+            var icon = {
+              url: place.icon,
+              size: new google.maps.Size(71, 71),
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(17, 34),
+              scaledSize: new google.maps.Size(25, 25)
+            };
+
+            // Create a marker for each place.
+            markers1.push(new google.maps.Marker({
+              map: map,
+              icon: icon,
+              title: place.name,
+              position: place.geometry.location
+            }));
+            
+            
+
+            if (place.geometry.viewport) {
+              // Only geocodes have viewport.
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+          map.fitBounds(bounds);
+        });
+      }
+      
+    </script>
+	<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHEq8x1DtHVnu5NA6sR1uogZmMwqMNDaw&libraries=places&callback=initMap"
+		async defer></script>
+	<script>
+        var xmlhttp = false;
+        try {
+        	xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (e) {
+        	try {
+        		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        	} catch (E) {
+        		xmlhttp = false;
+        	}
+        }
+        if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
+        	xmlhttp = new XMLHttpRequest();
+        }
+
+
+    function getCars() { 
+    	var radius = document.getElementById('radiusSelect').value; 
+        var searchUrl = 'storelocator.php?lat=' + position.lat() + '&lng=' + position.lng() + '&radius=' + radius;
+        alert(searchUrl);
+	    var serverPage1="backpone.php";
+	    xmlhttp.open("GET", serverPage1);
+	    xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		    var cars = JSON.parse(xmlhttp.responseText);
+		    var infowindow = new google.maps.InfoWindow({
+                          content: content
+                        });
+            for (i = 0; i < cars.cars.length; i++) { 
+                //alert(cars.cars[i].car.);
+                if (Number(cars.cars[i].car.lat) != 0 && Number(cars.cars[i].car.lon) != 0)
+                {
+                    var carpos = {lat: Number(cars.cars[i].car.lat), lng: Number(cars.cars[i].car.lon)};
+                            var image = '';
+                    switch (cars.cars[i].car.driver_car_type)
+                    {
+                        case '1':
+                                    image = '/img/toktok.png';
+                                break;
+                        case '2':
+                                    image = '/img/amjad.png';
+                                break;
+                        case '3':
+                                    image = '/img/taxi.png';
+                                break;
+                        case '4':
+                                    image = '/img/malaki.png';
+                                break;
+                            
+                    }
+                    var driverstatus = '';
+                    var imgsrc = '';
+                    if (cars.cars[i].car.driver_order_status == '1')
+                    {
+                        driverstatus = 'available';
+                        imgsrc = '/img/Ski_trail_rating_symbol-green_circle.svg/600px-Ski_trail_rating_symbol-green_circle.svg.png';
+                    }
+                    
+                    if (cars.cars[i].car.driver_order_status == '2')
+                    {
+                        driverstatus = 'Waiting for reply';
+                        imgsrc = '/img/Orange.svg';
+                    }
+                    
+                    if (cars.cars[i].car.driver_order_status == '3')
+                    {
+                        driverstatus = 'In Trip';
+                        imgsrc = '/img/Ski_trail_rating_symbol_red_circle.png';
+                    }
+                    
+                    var content = '<div id="content' + cars.cars[i].car.driver_id + '">' + cars.cars[i].car.driver_name + '<br>'+ cars.cars[i].car.driver_phone +'<br>'+ cars.cars[i].car.car_model +'<br>'+ cars.cars[i].car.car_color +'<br>'+ cars.cars[i].car.car_label +'<br>'+ cars.cars[i].car.last_online +'<br><img src="' + imgsrc + '" style="width:20px;height:20px;" />' + driverstatus + '</div>';
+                    
+                    
+                        
+                    var marker = new google.maps.Marker({
+                      position: carpos,
+                      map: map,
+                      icon: image
+                    });
+                    /*marker.addListener('click', function() {
+                        
+                      infowindow.open(map, marker);
+                    });*/
+                    google.maps.event.addListener(marker,'click', (function(marker,content,infowindow){ 
+                        return function() {
+                            infowindow.setContent(content);
+                            infowindow.open(map,marker);
+                        };
+                    })(marker,content,infowindow)); 
+                }
+            }
+			//obj2.innerHTML = xmlhttp.responseText;
+			//obj3.innerHTML = "day was added. Now add the classes on the day";
+		}
+	} 
+	xmlhttp.send(null);
+}
+</script>
+</body>
+</html>

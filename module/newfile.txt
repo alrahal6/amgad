@@ -1,0 +1,11 @@
+ SELECT id,price,seats,name,dropDownVal,phone,
+            userId,sourceAddress,destinationAddress,tripDistance,
+            (6371 * ACOS(COS(RADIANS( '10.1' )) * COS(RADIANS(srcLat)) * COS(RADIANS(srcLng) - RADIANS( '10.1' )) 
+            + SIN(RADIANS( '10.1' )) * SIN(RADIANS(srcLat)))) as srcDistDiff, 
+            (6371 * ACOS(COS(RADIANS( '10.1' )) * COS(RADIANS(destLat)) * COS(RADIANS(destLng) - RADIANS( '10.1' )) 
+            + SIN(RADIANS( '10.1' )) * SIN(RADIANS(destLat)))) as destDistDiff,
+            startTime,
+            endTime,srcLat,srcLng,
+            destLat,destLng FROM UserPosts where userId != 2 and selectorFlag = 6 and dropDownId = 1 
+            and status = 0  and ( startTime > '2020-03-02 23:30:00' and startTime < '2020-03-03 00:30:00') HAVING (srcDistDiff < '4' and destDistDiff < '4') 
+            ORDER BY tripDistance DESC LIMIT 20 

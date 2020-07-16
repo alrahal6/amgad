@@ -3,9 +3,17 @@ require_once '../includes/DbOperations.php';
 
 $response = array(); 
 
-function sendOtp($otp,$phone) {
-    $url = "http://212.0.129.229/bulksms/webacc.aspx?user=carp&pwd=100472&smstext=YourOTP:".$otp
-    ."&Sender=Carpoolee&Nums=249".$phone;
+/*$message = urlencode("Scheduled at ".$new_centername." and ".$address." and ".$center_mobile);
+$apiURL = "http://103.16.101.52:8080/bulksms/bulksms?username=abc-def&password=abc123&type=0&dlr=1&destination=".$conturyCode.$client_mobile."&source=ABC&message=".$message;
+*/
+function sendOtp($otp,$phone) {     
+    $url = 'http://212.0.129.229/bulksms/webacc.aspx?' . http_build_query([
+        'user' => "carp",
+        'pwd' => "100472",
+        'smstext' => "YourOTP:".$otp,
+        'Sender' => "Carpoolee",
+        'Nums' => "249".$phone
+    ]);
     $cURLConnection = curl_init();
     curl_setopt($cURLConnection, CURLOPT_URL, $url);
     curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);

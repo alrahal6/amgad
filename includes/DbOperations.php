@@ -4,9 +4,14 @@ class DbOperations
 {
 
     private $con;
+    
+    private $CONF = 1; 
+    private $CANCEL = 2;  
+    private $STARTED = 3;  
 
     function __construct()
     {
+        date_default_timezone_set('UTC');
         require_once dirname(__FILE__) . '/DbConnect.php';
         $db = new DbConnect(); 
         $this->con = $db->connect(); 
@@ -79,48 +84,80 @@ class DbOperations
         //return true;
     }
     
-    public function sendConfirmation($data) {
+    public function updateStatus($users,$flag)
+    {
+        // todo update status
+        $sql = "update `UserPosts`
+         set status = ".$flag." where userId in (".implode(',',$users).") ";
+         //$this->removeUserLoc($id);
+         if(mysqli_query($this->con, $sql)) {
+             return true;
+         }
+         return null;
+    }
+    
+    public function sendGeneral($data,$flag) {
+        $users = array();
         foreach ($data as $d) {
-            $d['mFlag'] = 6;
-            $token = $this->getToken($d['tUserId']); 
+            $users[] = $d['tUserId']; 
+            $d['mFlag'] = $flag;
+            $token = $this->getToken($d['tUserId']);
             if($token) {
-                $this->push_notification_android($token,$d); 
-            } 
+                $this->push_notification_android($token,$d);
+            }
         }
-        return true;
+        $this->updateStatus($users, $flag);
+        return true; 
     }
     
     public function sendStarted($data) {
-        foreach ($data as $d) {
-            $d['mFlag'] = 12;
-            $token = $this->getToken($d['tUserId']);
-            if($token) {
-                $this->push_notification_android($token,$d);
-            }
-        }
-        return true;
+        return $this->sendGeneral($data,"12");
     }
     
     public function sendCompleted($data) {
-        foreach ($data as $d) {
-            $d['mFlag'] = 13;
-            $token = $this->getToken($d['tUserId']);
-            if($token) {
-                $this->push_notification_android($token,$d);
-            }
-        }
-        return true;
+        return $this->sendGeneral($data,"13");
     }
     
     public function sendCancelled($data) {
-        foreach ($data as $d) {
-            $d['mFlag'] = 8;
-            $token = $this->getToken($d['tUserId']);
-            if($token) {
-                $this->push_notification_android($token,$d);
-            }
-        }
+        return $this->sendGeneral($data,"8");
+    }
+    
+    public function sendConfirmation($data) {
+       return $this->sendGeneral($data,"6");
+    }
+    
+    public function checkBeforeConfirm($data) {
+        // @todo check condition 
         return true;
+        //return null;
+    }
+    
+    private function saveNotification($data,$flag) {
+        // @todo save in table
+        /*$stmt = $this->con->prepare("INSERT INTO `users` (`id`,`userName`,`phone`,`password`,`vehicleType`) 
+                VALUES (?, ?, ?, ?,?);");
+            $stmt->bind_param("ssiss",$i,$name, $phone, $otp,$vehicle);  
+            if ($stmt->execute()) {
+                return $stmt->insert_id; 
+            } else {
+                return null;
+            }*/ 
+        
+        /*id
+        userId
+        msgDateTime
+        toUserId
+        notificationFlag*/
+        
+        /*$stmt = $this->con->prepare("INSERT INTO `NotificationHistory` 
+       (`id`,`userId`,`msgDateTime`,`toUserId`,`notificationFlag`)
+                VALUES (?, ?, ?, ?,?);");
+        $stmt->bind_param("ssiss",$i,$name, $phone, $otp,$vehicle);
+        if ($stmt->execute()) {
+            return $stmt->insert_id;
+        } else {
+            return null;
+        }*/
     }
     
     public function getToken($userId) { 
@@ -162,27 +199,6 @@ class DbOperations
         } else {
             return null;
         }
-    }
-    
-    public function updateStatus($userId,$token)
-    {
-        // todo update status
-        return true;
-        /*$sql = "DELETE from `UserToken`
-                WHERE `UserToken`.`userId` = '".$userId."'";
-        //$this->removeUserLoc($id);
-        if(mysqli_query($this->con, $sql)) {
-            $i = "";
-            $stmt = $this->con->prepare("INSERT INTO `UserToken`
-             (`id`,`userId`,`token`) VALUES (?, ?, ?);");
-            $stmt->bind_param("iss",$i,$userId, $token);
-            if ($stmt->execute()) {
-                return $stmt->insert_id;
-            }
-            return null;
-        } else {
-            return null;
-        }*/
     }
     
     public function logCall($userId,$phone,$tripId)
@@ -578,7 +594,7 @@ class DbOperations
             $array = array();
             $mysqli = $this->con;
             $mysqli->begin_transaction();
-            $radius = 3;
+            $radius = 13;
             $myQuery = sprintf("SELECT userId, lat, lng,
                 ( 6371 * acos( cos( radians( '%s' ) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians( '%s' ) ) 
                 + sin( radians( '%s' ) ) * sin( radians( lat ) ) ) ) AS distance 
@@ -600,7 +616,7 @@ class DbOperations
             //$txt = "Jane Doe\n";
             //fwrite($myfile, $txt);
             //fclose($myfile);
-            //var_dump($query);
+            //var_dump($myQuery);
             //exit;
             $result = $mysqli->query($myQuery);
             if (!$result) {
@@ -612,13 +628,13 @@ class DbOperations
             }
             $i = 0;
             while ($row = mysqli_fetch_assoc($result)) { 
-                $ins = "INSERT INTO `DriverTripRequest` (`tripId`,`driverId`,`requestResponseId`)
+                /*$ins = "INSERT INTO `DriverTripRequest` (`tripId`,`driverId`,`requestResponseId`)
                 VALUES ('".$tripId."','".$row['userId']."','0')";
                 mysqli_query($mysqli, $ins);  
                 // update selected  
                 $sql = "UPDATE `DriverCurrentLocation` SET  `isOnRequest` = '1' 
                 WHERE `DriverCurrentLocation`.`userId` = '".$row['userId']."'";
-                mysqli_query($mysqli, $sql); 
+                mysqli_query($mysqli, $sql); */
                 $array[$i++] =
                 array( 
                     'userId'   => $row['userId'],
@@ -648,12 +664,12 @@ class DbOperations
             
             $sql = "INSERT INTO `UserPosts` (`id`, `userId`, `srcLat`, `srcLng`, `destLat`, 
             `destLng`, `tripDistance`, `startTime`, `endTime`, `sourceAddress`, `destinationAddress`, 
-            `phone`, `seats`, `dropDownId`, `dropDownVal`, `price`, `selectorFlag`, `name`, `status`)
+            `phone`, `seats`, `dropDownId`, `dropDownVal`, `price`, `selectorFlag`, `name`, `status`,`notes`)
              VALUES (NULL,'".$data['userId']."','".$data['srcLat']."','".$data['srcLng']."','".$data['destLat']."'
              ,'".$data['destLng']."','".$data['tripDistance']."','".$startTime->format('Y-m-d H:i:s')."','".$today->format('Y-m-d H:i:s')."'
              ,'".$data['sourceAddress']."','".$data['destinationAddress']."','".$data['phone']."','".$data['seats']."'
              ,'".$data['dropDownId']."','".$data['dropDownVal']."','".$data['price']."','".$data['selectorFlag']."'
-             ,'".$data['name']."','0')";
+             ,'".$data['name']."','0','".$data['notes']."')"; 
             //echo $sql;
             //exit;
             //$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");

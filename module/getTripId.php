@@ -1,5 +1,5 @@
 <?php 
-require_once '../includes/DbOperations.php';
+require_once dirname(__DIR__).'/includes/DbOperations.php';
 
 $response = array();
 

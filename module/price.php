@@ -1,5 +1,5 @@
 <?php 
-require_once '../includes/DbOperations.php';
+require_once dirname(__DIR__).'/includes/DbOperations.php';
 
 $response = array(); 
 
@@ -16,6 +16,7 @@ function calculatePrice($distance,$flag) {
 
 if($_SERVER['REQUEST_METHOD']=='POST') { 
     $data = json_decode(file_get_contents('php://input'), true);
+    //var_dump($data);
     if(isset($data['price']) and isset($data['distance']) and isset($data['flag'])) {
         $response['price'] = calculatePrice($data['distance'],$data['flag']);
         $response['distance'] = $data['distance'];

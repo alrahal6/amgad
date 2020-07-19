@@ -22,9 +22,9 @@ class DbOperations
         $vehicle = "1";
         if ($res = $this->getUserByPhone($phone)) {
             //var_dump($res["id"]); 
-            $updt = $this->con->prepare("UPDATE `users` 
+            $updt = $this->con->prepare("UPDATE `Users` 
             SET `userName` = ?, `phone` = ? ,`password` = ? ,`vehicleType` = ? 
-            WHERE `users`.`id` = ?");
+            WHERE `Users`.`id` = ?");
             $updt->bind_param("sissi",$name,$phone,$otp,$vehicle,$res["id"]);
             //$stmt->
             if ($updt->execute()) {
@@ -39,7 +39,7 @@ class DbOperations
         } else {
             $i = NULL;
             //$password = md5($pass);
-            $stmt = $this->con->prepare("INSERT INTO `users` (`id`,`userName`,`phone`,`password`,`vehicleType`) 
+            $stmt = $this->con->prepare("INSERT INTO `Users` (`id`,`userName`,`phone`,`password`,`vehicleType`) 
                 VALUES (?, ?, ?, ?,?);");
             $stmt->bind_param("ssiss",$i,$name, $phone, $otp,$vehicle);  
             if ($stmt->execute()) {
@@ -173,7 +173,7 @@ class DbOperations
     
     public function getUserByPhone($phone)
     {
-        $sql = "SELECT id FROM users WHERE phone ='".$phone."'";
+        $sql = "SELECT id FROM Users WHERE phone ='".$phone."'";
          if($result = mysqli_query($this->con, $sql)) {
              if(mysqli_num_rows($result) > 0) {
                  return mysqli_fetch_assoc($result);
@@ -224,7 +224,7 @@ class DbOperations
     
     public function isValidUser($phone,$pass)
     {
-        $sql = "SELECT * FROM users WHERE phone ='".$phone."' and password = '".$pass."'";
+        $sql = "SELECT * FROM Users WHERE phone ='".$phone."' and password = '".$pass."'";
         if($result = mysqli_query($this->con, $sql)) {
             if(mysqli_num_rows($result) > 0) {
                 return mysqli_fetch_assoc($result);
@@ -599,7 +599,7 @@ class DbOperations
                 ( 6371 * acos( cos( radians( '%s' ) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians( '%s' ) ) 
                 + sin( radians( '%s' ) ) * sin( radians( lat ) ) ) ) AS distance 
                 FROM DriverCurrentLocation d 
-                inner join users u on u.id = d.userId 
+                inner join Users u on u.id = d.userId 
                 inner join VehicleType v on v.id = u.vehicleType  
                 where isTerminated = 0 and isOnRequest = 0 and  
                 userId != %s  HAVING distance < '%s' ORDER BY distance LIMIT 0 , 10",

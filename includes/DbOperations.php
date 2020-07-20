@@ -126,10 +126,25 @@ class DbOperations
        return $this->sendGeneral($data,"6");
     }
     
-    public function checkBeforeConfirm($data) {
-        // @todo check condition 
-        return true;
-        //return null;
+    private function isAvailable($id) {
+        $sql = "SELECT id FROM UserPosts WHERE userId = '".$id."' and status = 0 ";
+        if($result = mysqli_query($this->con, $sql)) {
+            if(mysqli_num_rows($result) > 0) {
+                //return mysqli_fetch_assoc($result);
+                return true;
+            }
+            return false;
+        }
+        return false; 
+    } 
+    
+    public function checkBeforeConfirm($data) { 
+        foreach ($data as $d) {
+            if(!$this->isAvailable($d['tUserId'])) {
+                return null;       
+            }
+        }
+        return true; 
     }
     
     private function saveNotification($data,$flag) {
@@ -658,9 +673,19 @@ class DbOperations
             $array = array();
             $startTime = new DateTime($data['startTime']);
             $today = new DateTime();
+            $status = 0;
             //$now = $today->format('Y-m-d H:i:s');
+            // PASSENGER_TAXI_ONLY = 1;
+            // PASSENGER_SHARE_ONLY = 2;
+            // PASSENGER_ANY = 3;
+            // CAPTAIN_TAXI_ONLY = 4;
+            // CAPTAIN_SHARE_ONLY = 5;
+            // CAPTAIN_ANY = 6;
             $mysqli = $this->con;
             $mysqli->begin_transaction();
+            if($data['selectorFlag'] == 5 || $data['selectorFlag'] == 6) {
+                $status = 1;
+            }
             
             $sql = "INSERT INTO `UserPosts` (`id`, `userId`, `srcLat`, `srcLng`, `destLat`, 
             `destLng`, `tripDistance`, `startTime`, `endTime`, `sourceAddress`, `destinationAddress`, 
@@ -669,7 +694,7 @@ class DbOperations
              ,'".$data['destLng']."','".$data['tripDistance']."','".$startTime->format('Y-m-d H:i:s')."','".$today->format('Y-m-d H:i:s')."'
              ,'".$data['sourceAddress']."','".$data['destinationAddress']."','".$data['phone']."','".$data['seats']."'
              ,'".$data['dropDownId']."','".$data['dropDownVal']."','".$data['price']."','".$data['selectorFlag']."'
-             ,'".$data['name']."','0','".$data['notes']."')"; 
+             ,'".$data['name']."',".$status.",'".$data['notes']."')"; 
             //echo $sql;
             //exit;
             //$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");

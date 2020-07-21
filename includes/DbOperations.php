@@ -137,7 +137,7 @@ class DbOperations
         }
         $storage->registerStreamWrapper();
         $contents = file_get_contents("gs://carpoolee/newfile.txt");
-        var_dump($contents);
+        //var_dump($contents);
         /*$w = array();
         var_dump(stream_get_wrappers());
         echo 'openssl: ',  extension_loaded  ('openssl') ? 'yes':'no', "\n";
@@ -153,10 +153,17 @@ class DbOperations
         //fwrite($fp, $a);
         //fclose($fp);
         //file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
-        
+         * 
+         * 
+        */
+        $fp = fopen("gs://carpoolee/newfile.txt", 'w');
+        fwrite($fp, $newFileContent);
+        fclose($fp);
         $options = ['gs' => ['Content-Type' => 'text/plain']];
         $context = stream_context_create($options);
-        file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);*/
+        $a = "NN - ".date("Y-m-d h:i:sa");
+        //file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);
+        file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
         return true; 
     }
     

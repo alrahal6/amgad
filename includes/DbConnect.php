@@ -1,5 +1,5 @@
 <?php 
-/*class DbConnect
+class DbConnect
 { 
     private $con;
     function __construct() { }
@@ -13,8 +13,8 @@
         } 
         return $this->con;
     }
-}*/
-class DbConnect
+}
+/*class DbConnect
 {
     private $con;
     function __construct() { }
@@ -37,4 +37,4 @@ class DbConnect
         //echo "connected Successfully";
         return $this->con;
     }
-}
+}*/

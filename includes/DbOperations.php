@@ -135,8 +135,9 @@ class DbOperations
         foreach ($r as $x) {
             echo $x->name()."<br/>"; 
         }
-        //$storage->registerStreamWrapper();
-        //$contents = file_get_contents("gs://carpoolee/newfile.txt");
+        $storage->registerStreamWrapper();
+        $contents = file_get_contents("gs://carpoolee/newfile.txt");
+        var_dump($contents);
         /*$w = array();
         var_dump(stream_get_wrappers());
         echo 'openssl: ',  extension_loaded  ('openssl') ? 'yes':'no', "\n";
@@ -145,7 +146,7 @@ class DbOperations
         echo 'wrappers: ', var_dump($w);*/
         
         //$a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
-        $a = "NN - ".date("Y-m-d h:i:sa");
+       /* $a = "NN - ".date("Y-m-d h:i:sa");
         //$fp = fopen($contents, 'w');
         //$fp = fopen( $contents, 'w');
        
@@ -155,7 +156,7 @@ class DbOperations
         
         $options = ['gs' => ['Content-Type' => 'text/plain']];
         $context = stream_context_create($options);
-        file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);
+        file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);*/
         return true; 
     }
     

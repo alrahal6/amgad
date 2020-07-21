@@ -1,11 +1,11 @@
 <?php
 
 
-require dirname(__FILE__).'/storage/vendor/autoload.php';
+//require dirname(__FILE__).'/storage/vendor/autoload.php';
 //require dirname(__FILE__) . '/al-rahal6-953b14ab8110.json';
 
 
-use Google\Cloud\Storage\StorageClient; 
+//use Google\Cloud\Storage\StorageClient; 
 
 class DbOperations
 {
@@ -17,7 +17,7 @@ class DbOperations
     private $CANCEL = 2;  
     private $STARTED = 3;  
     //private $bucket = "https://console.cloud.google.com/storage/browser/al-rahal6.appspot.com/";
-    private $bucket = "gs://al-rahal6.appspot.com/newfile.txt";
+    //private $bucket = "gs://al-rahal6.appspot.com/newfile.txt";
     //private $bucket = "";
 
     function __construct()
@@ -110,71 +110,47 @@ class DbOperations
          return null;
     }
     
-    
+    public function logToDb($users,$phone,$trip) {
+        $i = NULL;
+        /*$stmt = $this->con->prepare("INSERT INTO `Notifications` 
+(`id`, `users`, `phone`, `tripFlag`, `savedDtTime`)
+                VALUES (?, ?, ?, ?,?);");
+        $stmt->bind_param("sssss",$i,$users, $phone, $trip,now());
+        if ($stmt->execute()) {
+            return $stmt->insert_id;
+        } else {
+            return null;
+        }*/
+        //echo "ssd";
+        $sql = "INSERT INTO `Notifications` (`id`, `users`, `phone`, `fromUser`, `savedDtTime`)
+                VALUES (null, '".$users."', '".$phone."','".$trip."',now())";
+        //echo $sql;
+        //exit;
+        if(mysqli_query($this->con, $sql)) {
+            return true;
+        } else {
+            return null;
+        }
+    }
     
     public function logCall($userId,$phone,$tripId)
     {
-        //$storage = new StorageClient();
-        $this->storage->registerStreamWrapper();
-        $a = "NN - ".$userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
-        file_put_contents($this->bucket."callLog.txt", $a, FILE_APPEND | LOCK_EX);
-        return true; 
+        //$a = $userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
+        return $this->logToDb($userId, $phone, $tripId);
+        //return true; 
     }
     
-    /*private function saveNotification($data,$flag) {
-        $a = $users." - ".$flag." - ".date("Y-m-d h:i:sa");
-        file_put_contents("newfile.txt", $a);
-    }*/
-    
-    public function saveNotification($users,$flag) {
-        //$storage = new StorageClient();
-        $storage = new StorageClient([
-            'keyFilePath' =>  __DIR__ . '/al-rahal6-953b14ab8110.json'
-        ]);
-        $r = $storage->buckets();
-        foreach ($r as $x) {
-            echo $x->name()."<br/>"; 
-        }
-        $storage->registerStreamWrapper();
-        $contents = file_get_contents("gs://carpoolee/newfile.txt");
-        $a = "NN - ".date("Y-m-d h:i:sa");
-        $default_bucket = $storage->buckets();
-        $fp = fopen("gs://${default_bucket}/newfile", 'w');
-        fwrite($fp, $a);
-        fclose($fp);
-        //var_dump($contents);
-        /*$w = array();
-        var_dump(stream_get_wrappers());
-        echo 'openssl: ',  extension_loaded  ('openssl') ? 'yes':'no', "\n";
-        echo 'http wrapper: ', in_array('http', $w) ? 'yes':'no', "\n";
-        echo 'https wrapper: ', in_array('https', $w) ? 'yes':'no', "\n";
-        echo 'wrappers: ', var_dump($w);*/
-        
-        //$a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
-       /* $a = "NN - ".date("Y-m-d h:i:sa");
-        //$fp = fopen($contents, 'w');
-        //$fp = fopen( $contents, 'w');
-       
-        //fwrite($fp, $a);
-        //fclose($fp);
-        //file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
-         * 
-         * 
-        */
-        $fp = fopen("gs://carpoolee/newfile.txt", 'w');
-        fwrite($fp, $newFileContent);
-        fclose($fp);
-        $options = ['gs' => ['Content-Type' => 'text/plain']];
-        $context = stream_context_create($options);
-        
-        //file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);
-        file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
-        return true; 
+    private function saveNotification($users,$flag,$fuser) {
+       // $a = $users." - ".$flag." - ".date("Y-m-d h:i:sa");
+        return $this->logToDb($users, $fuser, $flag);
+        //file_put_contents("newfile.txt", $a);
+        //return true;
     }
     
     public function sendGeneral($data,$flag) {
         $users = array();
         foreach ($data as $d) {
+            $fuser = $d['fUserId']; 
             $users[] = $d['tUserId']; 
             $d['mFlag'] = $flag;
             $token = $this->getToken($d['tUserId']);
@@ -183,7 +159,7 @@ class DbOperations
             }
         }
         $this->updateStatus($users, $flag);
-        $this->saveNotification($users, $flag);
+        $this->saveNotification(implode(",", $users), $flag,$fuser);
         return true; 
     }
     

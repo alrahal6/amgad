@@ -1,20 +1,28 @@
 <?php
+require dirname(__FILE__).'/storage/vendor/autoload.php';
+
+use Google\Cloud\Storage\StorageClient;
 
 class DbOperations
 {
 
     private $con;
+    private $storage;
     
     private $CONF = 1; 
     private $CANCEL = 2;  
     private $STARTED = 3;  
+    //private $bucket = "gs://al-rahal6.appspot.com/";
+    private $bucket = "";
 
     function __construct()
     {
         date_default_timezone_set('UTC');
         require_once dirname(__FILE__) . '/DbConnect.php';
         $db = new DbConnect(); 
-        $this->con = $db->connect(); 
+        $this->con = $db->connect();
+        $this->storage = new StorageClient();
+        $this->storage->registerStreamWrapper();
     }
     
     public function createUser($name,$phone,$otp)
@@ -96,6 +104,26 @@ class DbOperations
          return null;
     }
     
+    
+    
+    public function logCall($userId,$phone,$tripId)
+    {
+        $a = "NN - ".$userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
+        file_put_contents($this->bucket."callLog.txt", $a, FILE_APPEND | LOCK_EX);
+        return true; 
+    }
+    
+    /*private function saveNotification($data,$flag) {
+        $a = $users." - ".$flag." - ".date("Y-m-d h:i:sa");
+        file_put_contents("newfile.txt", $a);
+    }*/
+    
+    private function saveNotification($users,$flag) { 
+        $a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
+        file_put_contents($this->bucket."newfile.txt", $a, FILE_APPEND | LOCK_EX);
+        return true; 
+    }
+    
     public function sendGeneral($data,$flag) {
         $users = array();
         foreach ($data as $d) {
@@ -107,6 +135,7 @@ class DbOperations
             }
         }
         $this->updateStatus($users, $flag);
+        $this->saveNotification($users, $flag);
         return true; 
     }
     
@@ -145,34 +174,6 @@ class DbOperations
             }
         }
         return true; 
-    }
-    
-    private function saveNotification($data,$flag) {
-        // @todo save in table
-        /*$stmt = $this->con->prepare("INSERT INTO `users` (`id`,`userName`,`phone`,`password`,`vehicleType`) 
-                VALUES (?, ?, ?, ?,?);");
-            $stmt->bind_param("ssiss",$i,$name, $phone, $otp,$vehicle);  
-            if ($stmt->execute()) {
-                return $stmt->insert_id; 
-            } else {
-                return null;
-            }*/ 
-        
-        /*id
-        userId
-        msgDateTime
-        toUserId
-        notificationFlag*/
-        
-        /*$stmt = $this->con->prepare("INSERT INTO `NotificationHistory` 
-       (`id`,`userId`,`msgDateTime`,`toUserId`,`notificationFlag`)
-                VALUES (?, ?, ?, ?,?);");
-        $stmt->bind_param("ssiss",$i,$name, $phone, $otp,$vehicle);
-        if ($stmt->execute()) {
-            return $stmt->insert_id;
-        } else {
-            return null;
-        }*/
     }
     
     public function getToken($userId) { 
@@ -215,28 +216,7 @@ class DbOperations
             return null;
         }
     }
-    
-    public function logCall($userId,$phone,$tripId)
-    {
-        // todo update status
-        return true;
-        /*$sql = "DELETE from `UserToken`
-         WHERE `UserToken`.`userId` = '".$userId."'";
-         //$this->removeUserLoc($id);
-         if(mysqli_query($this->con, $sql)) {
-         $i = "";
-         $stmt = $this->con->prepare("INSERT INTO `UserToken`
-         (`id`,`userId`,`token`) VALUES (?, ?, ?);");
-         $stmt->bind_param("iss",$i,$userId, $token);
-         if ($stmt->execute()) {
-         return $stmt->insert_id;
-         }
-         return null;
-         } else {
-         return null;
-         }*/
-    }
-    
+     
     public function isValidUser($phone,$pass)
     {
         $sql = "SELECT * FROM Users WHERE phone ='".$phone."' and password = '".$pass."'";
@@ -683,7 +663,12 @@ class DbOperations
             // CAPTAIN_ANY = 6;
             $mysqli = $this->con;
             $mysqli->begin_transaction();
-            if($data['selectorFlag'] == 5 || $data['selectorFlag'] == 6) {
+            if($data['selectorFlag'] == 5) {
+                $data['selectorFlag'] = 2;
+                $status = 1;
+            }
+            
+            if($data['selectorFlag'] == 6) {
                 $status = 1;
             }
             

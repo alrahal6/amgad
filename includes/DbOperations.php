@@ -1,7 +1,11 @@
 <?php
+
+
 require dirname(__FILE__).'/storage/vendor/autoload.php';
 
-use Google\Cloud\Storage\StorageClient;
+
+
+use Google\Cloud\Storage\StorageClient; 
 
 class DbOperations
 {
@@ -22,7 +26,7 @@ class DbOperations
         $db = new DbConnect(); 
         $this->con = $db->connect();
         $this->storage = new StorageClient();
-        $this->storage->registerStreamWrapper();
+        //$this->storage->registerStreamWrapper();
     }
     
     public function createUser($name,$phone,$otp)
@@ -108,6 +112,8 @@ class DbOperations
     
     public function logCall($userId,$phone,$tripId)
     {
+        
+        $this->storage->registerStreamWrapper();
         $a = "NN - ".$userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
         file_put_contents($this->bucket."callLog.txt", $a, FILE_APPEND | LOCK_EX);
         return true; 
@@ -118,7 +124,9 @@ class DbOperations
         file_put_contents("newfile.txt", $a);
     }*/
     
-    private function saveNotification($users,$flag) { 
+    private function saveNotification($users,$flag) {
+        //$storage = new StorageClient();
+        $this->storage->registerStreamWrapper();
         $a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
         file_put_contents($this->bucket."newfile.txt", $a, FILE_APPEND | LOCK_EX);
         return true; 

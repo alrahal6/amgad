@@ -16,8 +16,8 @@ class DbOperations
     private $CONF = 1; 
     private $CANCEL = 2;  
     private $STARTED = 3;  
-    //private $bucket = "gs://al-rahal6.appspot.com/";
-    private $bucket = "";
+    private $bucket = "https://console.cloud.google.com/storage/browser/al-rahal6.appspot.com/";
+    //private $bucket = "";
 
     function __construct()
     {
@@ -112,8 +112,8 @@ class DbOperations
     
     public function logCall($userId,$phone,$tripId)
     {
-        
-        $this->storage->registerStreamWrapper();
+        $storage = new StorageClient();
+        $storage->registerStreamWrapper();
         $a = "NN - ".$userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
         file_put_contents($this->bucket."callLog.txt", $a, FILE_APPEND | LOCK_EX);
         return true; 
@@ -125,8 +125,8 @@ class DbOperations
     }*/
     
     private function saveNotification($users,$flag) {
-        //$storage = new StorageClient();
-        $this->storage->registerStreamWrapper();
+        $storage = new StorageClient();
+        $storage->registerStreamWrapper();
         $a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
         file_put_contents($this->bucket."newfile.txt", $a, FILE_APPEND | LOCK_EX);
         return true; 

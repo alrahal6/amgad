@@ -2,7 +2,7 @@
 
 
 require dirname(__FILE__).'/storage/vendor/autoload.php';
-
+//require dirname(__FILE__) . '/al-rahal6-953b14ab8110.json';
 
 
 use Google\Cloud\Storage\StorageClient; 
@@ -16,16 +16,18 @@ class DbOperations
     private $CONF = 1; 
     private $CANCEL = 2;  
     private $STARTED = 3;  
-    private $bucket = "https://console.cloud.google.com/storage/browser/al-rahal6.appspot.com/";
+    //private $bucket = "https://console.cloud.google.com/storage/browser/al-rahal6.appspot.com/";
+    private $bucket = "gs://al-rahal6.appspot.com/newfile.txt";
     //private $bucket = "";
 
     function __construct()
     {
         date_default_timezone_set('UTC');
+        //echo  __DIR__ . '/al-rahal6-953b14ab8110.json';
         require_once dirname(__FILE__) . '/DbConnect.php';
         $db = new DbConnect(); 
         $this->con = $db->connect();
-        $this->storage = new StorageClient();
+        
         //$this->storage->registerStreamWrapper();
     }
     
@@ -112,8 +114,8 @@ class DbOperations
     
     public function logCall($userId,$phone,$tripId)
     {
-        $storage = new StorageClient();
-        $storage->registerStreamWrapper();
+        //$storage = new StorageClient();
+        $this->storage->registerStreamWrapper();
         $a = "NN - ".$userId." - ".$phone." - ".$tripId." - ".date("Y-m-d h:i:sa");
         file_put_contents($this->bucket."callLog.txt", $a, FILE_APPEND | LOCK_EX);
         return true; 
@@ -124,11 +126,36 @@ class DbOperations
         file_put_contents("newfile.txt", $a);
     }*/
     
-    private function saveNotification($users,$flag) {
-        $storage = new StorageClient();
-        $storage->registerStreamWrapper();
-        $a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
-        file_put_contents($this->bucket."newfile.txt", $a, FILE_APPEND | LOCK_EX);
+    public function saveNotification($users,$flag) {
+        //$storage = new StorageClient();
+        $storage = new StorageClient([
+            'keyFilePath' =>  __DIR__ . '/al-rahal6-953b14ab8110.json'
+        ]);
+        $r = $storage->buckets();
+        foreach ($r as $x) {
+            echo $x->name()."<br/>"; 
+        }
+        //$storage->registerStreamWrapper();
+        //$contents = file_get_contents("gs://carpoolee/newfile.txt");
+        /*$w = array();
+        var_dump(stream_get_wrappers());
+        echo 'openssl: ',  extension_loaded  ('openssl') ? 'yes':'no', "\n";
+        echo 'http wrapper: ', in_array('http', $w) ? 'yes':'no', "\n";
+        echo 'https wrapper: ', in_array('https', $w) ? 'yes':'no', "\n";
+        echo 'wrappers: ', var_dump($w);*/
+        
+        //$a = $a = "NN - ".implode(" ",$users)." - ".$flag." - ".date("Y-m-d h:i:sa");
+        $a = "NN - ".date("Y-m-d h:i:sa");
+        //$fp = fopen($contents, 'w');
+        //$fp = fopen( $contents, 'w');
+       
+        //fwrite($fp, $a);
+        //fclose($fp);
+        //file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
+        
+        $options = ['gs' => ['Content-Type' => 'text/plain']];
+        $context = stream_context_create($options);
+        file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);
         return true; 
     }
     

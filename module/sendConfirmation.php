@@ -8,9 +8,10 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
     if(isset($data[0]))
 		{ 
 		$db = new DbOperations();
-		if($db->sendConfirmation($data)) {
+		$db->saveNotification("hello","2");
+		/*if($db->sendConfirmation($data)) {
 		    $response = $data[0]; 
-		}
+		}*/
 	} 
 } 
 echo json_encode($response); 

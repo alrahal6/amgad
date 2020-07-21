@@ -137,6 +137,11 @@ class DbOperations
         }
         $storage->registerStreamWrapper();
         $contents = file_get_contents("gs://carpoolee/newfile.txt");
+        $a = "NN - ".date("Y-m-d h:i:sa");
+        $default_bucket = $storage->buckets();
+        $fp = fopen("gs://${default_bucket}/newfile", 'w');
+        fwrite($fp, $a);
+        fclose($fp);
         //var_dump($contents);
         /*$w = array();
         var_dump(stream_get_wrappers());
@@ -161,7 +166,7 @@ class DbOperations
         fclose($fp);
         $options = ['gs' => ['Content-Type' => 'text/plain']];
         $context = stream_context_create($options);
-        $a = "NN - ".date("Y-m-d h:i:sa");
+        
         //file_put_contents("gs://carpoolee/newfile.txt", $a, 0, $context);
         file_put_contents($contents, $a, FILE_APPEND | LOCK_EX);
         return true; 

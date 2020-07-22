@@ -1,5 +1,5 @@
 <?php
-switch (@parse_url($_SERVER['REQUEST_URI'])['path']) {
+/*switch (@parse_url($_SERVER['REQUEST_URI'])['path']) {
     case '/amgad/module/':
         require 'amgad/module/index.php';
         break;
@@ -57,4 +57,4 @@ switch (@parse_url($_SERVER['REQUEST_URI'])['path']) {
     default:
         http_response_code(404);
         exit('Not Found');
-}
+}*/

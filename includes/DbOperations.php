@@ -572,10 +572,11 @@ class DbOperations
                 
             }
             $mysqli->close();
-            $response = array (
+            return $array;
+            /*$response = array (
                 'success' => true,
                 'passengers' => $array
-            ); 
+            ); */
             return $response;
         } catch (Exception $e) {
             //$mysqli->rollback();

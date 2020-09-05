@@ -525,6 +525,64 @@ class DbOperations
         }
     }
     
+    public function getNearPassLst($pLat,$pLng)
+    {
+        
+        try {
+            $mysqli = $this->con;
+            $radius = 2;
+            $query = sprintf("SELECT id,price,seats,name,dropDownVal,phone,
+            userId,sourceAddress,destinationAddress,tripDistance,
+            (6371 * ACOS(COS(RADIANS( '%s' )) * COS(RADIANS(srcLat)) * COS(RADIANS(srcLng) - RADIANS( '%s' ))
+                + SIN(RADIANS( '%s' )) * SIN(RADIANS(srcLat)))) as distance,
+                    startTime,
+                    endTime,srcLat,srcLng,
+                    destLat,destLng FROM UserPosts where
+                    status = 0  HAVING distance < '%s'
+                    ORDER BY tripDistance DESC LIMIT 20",
+                $mysqli->real_escape_string($pLat),
+                $mysqli->real_escape_string($pLng),
+                $mysqli->real_escape_string($pLat),
+                $mysqli->real_escape_string($radius)
+                );
+            //echo $query;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $array[$i++] = array(
+                    "nearImage" => "0",
+                    "nearAmount" => $row['price'],
+                    "nearSeats" => $row['seats'],
+                    "nearGender"=> $row['dropDownVal'],
+                    "nearFrom" => $row['sourceAddress'],
+                    "nearTo" => $row['destinationAddress'],
+                    "nearDistance" => $row['tripDistance'],
+                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
+                    "fromLat" => $row['srcLat'],
+                    "fromLng" => $row['srcLng'],
+                    "toLat" => $row['destLat'],
+                    "toLng" => $row['destLng']
+                );
+                
+            }
+            $mysqli->close();
+            $response = array (
+                'success' => true,
+                'passengers' => $array
+            ); 
+            return $response;
+        } catch (Exception $e) {
+            //$mysqli->rollback();
+            return 1;
+        }
+    }
+    
     public function getNearDriversLst($pLat,$pLng)
     {
          

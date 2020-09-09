@@ -530,7 +530,7 @@ class DbOperations
         
         try {
             $mysqli = $this->con;
-            $radius = 2;
+            $radius = 3;
             $query = sprintf("SELECT id,price,seats,name,dropDownVal,phone,
             userId,sourceAddress,destinationAddress,tripDistance,
             (6371 * ACOS(COS(RADIANS( '%s' )) * COS(RADIANS(srcLat)) * COS(RADIANS(srcLng) - RADIANS( '%s' ))

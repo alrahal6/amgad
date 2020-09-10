@@ -525,6 +525,145 @@ class DbOperations
         }
     }
     
+    public function getMyHistory($userId,$phone) { 
+        try {
+            $mysqli = $this->con;
+            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat, 
+                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress, 
+                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name, 
+                status,notes FROM UserPosts where
+                    userId = '%s' 
+                    ORDER BY id ASC",
+                $mysqli->real_escape_string($userId)
+                );
+            //echo $query;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $array[$i++] = array(
+                    "nearImage" => "0",
+                    "nearAmount" => $row['price'],
+                    "nearSeats" => $row['seats'],
+                    "nearGender"=> $row['dropDownVal'],
+                    "nearFrom" => $row['sourceAddress'],
+                    "nearTo" => $row['destinationAddress'],
+                    "nearDistance" => $row['tripDistance'],
+                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
+                    "fromLat" => $row['srcLat'],
+                    "fromLng" => $row['srcLng'],
+                    "toLat" => $row['destLat'],
+                    "toLng" => $row['destLng']
+                );
+                
+            }
+            $mysqli->close();
+            return $array;
+            //return $response;
+        } catch (Exception $e) {
+            //$mysqli->rollback();
+            return 1;
+        }
+    }
+    
+    public function getMyCurrent($userId,$phone) {
+        try {
+            $mysqli = $this->con;
+            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
+                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
+                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
+                status,notes FROM UserPosts where
+                    userId = '%s'
+                    ORDER BY id DESC LIMIT 1",
+                $mysqli->real_escape_string($userId)
+                );
+            //echo $query;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $array[$i++] = array(
+                    "nearImage" => "0",
+                    "nearAmount" => $row['price'],
+                    "nearSeats" => $row['seats'],
+                    "nearGender"=> $row['dropDownVal'],
+                    "nearFrom" => $row['sourceAddress'],
+                    "nearTo" => $row['destinationAddress'],
+                    "nearDistance" => $row['tripDistance'],
+                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
+                    "fromLat" => $row['srcLat'],
+                    "fromLng" => $row['srcLng'],
+                    "toLat" => $row['destLat'],
+                    "toLng" => $row['destLng']
+                );
+                
+            }
+            $mysqli->close();
+            return $array;
+            //return $response;
+        } catch (Exception $e) {
+            //$mysqli->rollback();
+            return 1;
+        }
+    }
+    
+    public function getMyAccount($userId,$phone) {
+        return 100;
+        /*try {
+            $mysqli = $this->con;
+            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
+                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
+                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
+                status,notes FROM UserPosts where
+                    userId = '%s'
+                    ORDER BY id DESC LIMIT 1",
+                $mysqli->real_escape_string($userId)
+                );
+            //echo $query;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $array[$i++] = array(
+                    "nearImage" => "0",
+                    "nearAmount" => $row['price'],
+                    "nearSeats" => $row['seats'],
+                    "nearGender"=> $row['dropDownVal'],
+                    "nearFrom" => $row['sourceAddress'],
+                    "nearTo" => $row['destinationAddress'],
+                    "nearDistance" => $row['tripDistance'],
+                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
+                    "fromLat" => $row['srcLat'],
+                    "fromLng" => $row['srcLng'],
+                    "toLat" => $row['destLat'],
+                    "toLng" => $row['destLng']
+                );
+                
+            }
+            $mysqli->close();
+            return $array;
+            //return $response;
+        } catch (Exception $e) {
+            //$mysqli->rollback();
+            return 1;
+        }*/
+    }
+    
     public function getNearPassLst($pLat,$pLng)
     {
         

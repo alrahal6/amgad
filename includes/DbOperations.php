@@ -531,7 +531,7 @@ class DbOperations
             $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat, 
                 destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress, 
                 phone,seats,dropDownId,dropDownVal,price,selectorFlag,name, 
-                status,notes FROM UserPosts where
+                status,notes FROM UserPostsHistory where
                     userId = '%s' 
                     ORDER BY id ASC",
                 $mysqli->real_escape_string($userId)

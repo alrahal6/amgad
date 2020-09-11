@@ -546,19 +546,23 @@ class DbOperations
             }
             $i = 0;
             while ($row = mysqli_fetch_assoc($result)) {
-                $array[$i++] = array(
-                    "nearImage" => "0",
-                    "nearAmount" => $row['price'],
-                    "nearSeats" => $row['seats'],
-                    "nearGender"=> $row['dropDownVal'],
-                    "nearFrom" => $row['sourceAddress'],
-                    "nearTo" => $row['destinationAddress'],
-                    "nearDistance" => $row['tripDistance'],
-                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
-                    "fromLat" => $row['srcLat'],
-                    "fromLng" => $row['srcLng'],
-                    "toLat" => $row['destLat'],
-                    "toLng" => $row['destLng']
+                $array[$i++] = array(                    
+                    "fUserId" => $row['userId'],
+                    "tUserId" => $row['userId'],
+                    "mFlag" => $row['status'],
+                    "tripId" => $row['id'],
+                    "distance" => $row['tripDistance'],
+                    "price" => $row['price'],
+                    "mTripTime" => (new DateTime($row['startTime']))->format('c'),
+                    "phone" => $row['phone'],
+                    "name" => $row['name'],
+                    "fAddress" => $row['sourceAddress'],
+                    "tAddress" => $row['destinationAddress'],
+                    "note" => $row['notes'],
+                    "fLat" => $row['srcLat'],
+                    "fLng" => $row['srcLng'],
+                    "tLat" => $row['destLat'],
+                    "tLng" => $row['destLng']
                 );
                 
             }
@@ -592,19 +596,23 @@ class DbOperations
             }
             $i = 0;
             while ($row = mysqli_fetch_assoc($result)) {
-                $array[$i++] = array(
-                    "nearImage" => "0",
-                    "nearAmount" => $row['price'],
-                    "nearSeats" => $row['seats'],
-                    "nearGender"=> $row['dropDownVal'],
-                    "nearFrom" => $row['sourceAddress'],
-                    "nearTo" => $row['destinationAddress'],
-                    "nearDistance" => $row['tripDistance'],
-                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
-                    "fromLat" => $row['srcLat'],
-                    "fromLng" => $row['srcLng'],
-                    "toLat" => $row['destLat'],
-                    "toLng" => $row['destLng']
+                $array = array(
+                    "fUserId" => $row['userId'],
+                    "tUserId" => $row['userId'],
+                    "mFlag" => $row['status'],
+                    "tripId" => $row['id'],
+                    "distance" => $row['tripDistance'],
+                    "price" => $row['price'],
+                    "mTripTime" => (new DateTime($row['startTime']))->format('c'),
+                    "phone" => $row['phone'],
+                    "name" => $row['name'],
+                    "fAddress" => $row['sourceAddress'],
+                    "tAddress" => $row['destinationAddress'],
+                    "note" => $row['notes'],
+                    "fLat" => $row['srcLat'],
+                    "fLng" => $row['srcLng'],
+                    "tLat" => $row['destLat'],
+                    "tLng" => $row['destLng']
                 );
                 
             }
@@ -618,16 +626,13 @@ class DbOperations
     }
     
     public function getMyAccount($userId,$phone) {
-        return 100;
-        /*try {
+        //return 100;
+        try {
             $mysqli = $this->con;
-            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
-                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
-                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
-                status,notes FROM UserPosts where
-                    userId = '%s'
+            $query = sprintf("SELECT * FROM Users where
+                    phone = '%s'
                     ORDER BY id DESC LIMIT 1",
-                $mysqli->real_escape_string($userId)
+                $mysqli->real_escape_string($phone)
                 );
             //echo $query;
             $result = $mysqli->query($query);
@@ -638,22 +643,12 @@ class DbOperations
                 return 1;
             }
             $i = 0;
+            //$row = mysqli_fetch_row($result);
             while ($row = mysqli_fetch_assoc($result)) {
-                $array[$i++] = array(
-                    "nearImage" => "0",
-                    "nearAmount" => $row['price'],
-                    "nearSeats" => $row['seats'],
-                    "nearGender"=> $row['dropDownVal'],
-                    "nearFrom" => $row['sourceAddress'],
-                    "nearTo" => $row['destinationAddress'],
-                    "nearDistance" => $row['tripDistance'],
-                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
-                    "fromLat" => $row['srcLat'],
-                    "fromLng" => $row['srcLng'],
-                    "toLat" => $row['destLat'],
-                    "toLng" => $row['destLng']
+                $array = array(
+                    "phone" => $row['phone'],
+                    "amount" => $row['vehicleType']
                 );
-                
             }
             $mysqli->close();
             return $array;
@@ -661,7 +656,7 @@ class DbOperations
         } catch (Exception $e) {
             //$mysqli->rollback();
             return 1;
-        }*/
+        }
     }
     
     public function getNearPassLst($pLat,$pLng)

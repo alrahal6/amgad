@@ -10,12 +10,19 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
 		//if($user = $db->isValidUser($data['phone'], $data['password'])) {
 		    //$user = $db->getUserByPhone($_POST['phone']);
 		    
-        $response = array(
-            'userPhone' => $data['phone'],
-            'userId' => $data['userId'],
-            'isAllowed' => true,
-            'message' => 'User Allowed'
-        );
+        if($data['selector'] == 5) {
+            $response['userPhone'] = $data['phone'];
+            $response['userId'] = $data['userId'];
+            $response['isAllowed'] = false;
+            $response['message'] = "Blocked due to non payment";
+        } else {  
+            $response = array(
+                'userPhone' => $data['phone'],
+                'userId' => $data['userId'],
+                'isAllowed' => true,
+                'message' => 'User Allowed'
+            );
+        }
 		    /*$response['userPhone'] = $data['phone']; 
 			$response['userId'] = $data['userId'];
 			$response['isAllowed'] = true;

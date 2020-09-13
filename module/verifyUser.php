@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
 		//if($user = $db->isValidUser($data['phone'], $data['password'])) {
 		    //$user = $db->getUserByPhone($_POST['phone']);
 		    
-        if($data['selector'] == 5) {
+        if($data['selector'] == 0) {
             $response['userPhone'] = $data['phone'];
             $response['userId'] = $data['userId'];
             $response['isAllowed'] = false;

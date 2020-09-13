@@ -175,6 +175,11 @@ class DbOperations
         return $this->sendGeneral($data,"8");
     }
     
+    public function sendPassengerancelled($data) {
+        return true; 
+        //return $this->sendGeneral($data,"4");
+    }
+    
     public function sendConfirmation($data) {
        return $this->sendGeneral($data,"6");
     }

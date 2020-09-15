@@ -98,11 +98,11 @@ class DbOperations
         //return true;
     }
     
-    public function updateStatus($users,$flag)
+    public function updateStatus($users,$fuser,$flag)
     {
         // todo update status
         $sql = "update `UserPosts`
-         set status = ".$flag." where userId in (".implode(',',$users).") ";
+         set status = ".$flag." , captainId = ".$fuser." where userId in (".implode(',',$users).") ";
          //$this->removeUserLoc($id);
          if(mysqli_query($this->con, $sql)) {
              return true;
@@ -158,7 +158,7 @@ class DbOperations
                 $this->push_notification_android($token,$d);
             }
         }
-        $this->updateStatus($users, $flag);
+        $this->updateStatus($users,$fuser, $flag);
         $this->saveNotification(implode(",", $users), $flag,$fuser);
         return true; 
     }
@@ -584,15 +584,17 @@ class DbOperations
     public function getMyCurrent($userId,$phone) {
         try {
             $mysqli = $this->con;
-            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
-                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
-                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
-                status,notes FROM UserPosts where
+            $query = sprintf("SELECT u.id,userId,srcLat,srcLng,destLat, 
+destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress, 
+u.phone,seats,dropDownId,dropDownVal,price,selectorFlag,name, 
+status,notes,s.phone as cphone FROM UserPosts u left join Users s on s.id = u.captainId               
+where
                     userId = '%s'
-                    ORDER BY id DESC LIMIT 1",
+                    ORDER BY u.id DESC LIMIT 1",
                 $mysqli->real_escape_string($userId)
                 );
             //echo $query;
+            //exit;
             $result = $mysqli->query($query);
             if (!$result) {
                 return 1;
@@ -618,7 +620,8 @@ class DbOperations
                     "fLat" => $row['srcLat'],
                     "fLng" => $row['srcLng'],
                     "tLat" => $row['destLat'],
-                    "tLng" => $row['destLng']
+                    "tLng" => $row['destLng'],
+                    "captain" => $row['cphone']
                 );
                 
             }

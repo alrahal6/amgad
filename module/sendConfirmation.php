@@ -5,7 +5,7 @@ $response = array();
 
 if($_SERVER['REQUEST_METHOD']=='POST') {
     $data = json_decode(file_get_contents('php://input'), true); 
-    var_dump($data);
+    //var_dump($data);
     //if(isset($data[0]))
 		//{ 
 		$db = new DbOperations();

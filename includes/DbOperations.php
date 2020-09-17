@@ -704,7 +704,7 @@ class DbOperations
                     "nearFrom" => $row['sourceAddress'],
                     "nearTo" => $row['destinationAddress'],
                     "nearDistance" => $row['tripDistance'],
-                    "nearTime" => (new DateTime($row['startTime']))->format('c'),
+                    "nearTime" => date_format($row['startTime'],"d-M-Y H:i"),
                     "fromLat" => $row['srcLat'],
                     "fromLng" => $row['srcLng'],
                     "toLat" => $row['destLat'],

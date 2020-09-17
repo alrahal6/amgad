@@ -149,10 +149,12 @@ class DbOperations
     
     public function sendGeneral($data,$flag) {
         $users = array();
+        $amount = 0;
         foreach ($data as $d) {
             $fuser = $d['fUserId']; 
             $users[] = $d['tUserId']; 
             $d['mFlag'] = $flag;
+            $amount += (int) $d['price'];
             $token = $this->getToken($d['tUserId']);
             if($token) {
                 $this->push_notification_android($token,$d);
@@ -160,7 +162,23 @@ class DbOperations
         }
         $this->updateStatus($users,$fuser, $flag);
         $this->saveNotification(implode(",", $users), $flag,$fuser);
+        if($flag == "13") {
+            $this->deductComission($fuser,$amount,3);
+        }
         return true; 
+    }
+    
+    private function deductComission($user,$amount,$comission) {
+        $amt = ($amount * $comission)/100;
+        $sql = "UPDATE `Users` SET `vehicleType` = vehicleType - ".$amt." WHERE `Users`.`id` = '".$user."' ";
+        /* $sql = "UPDATE `DriverCurrentLocation` SET  `ipAddr` = '".$ipAddr."', `lat` = '".$lat."', `lng` = '".$lng."'
+                WHERE `DriverCurrentLocation`.`userId` = '".$id."'"; */
+        if(mysqli_query($this->con, $sql)) {
+            return 1;
+        } else {
+            return 2;
+        }
+        
     }
     
     public function sendStarted($data) {
@@ -704,7 +722,7 @@ class DbOperations
                     "nearFrom" => $row['sourceAddress'],
                     "nearTo" => $row['destinationAddress'],
                     "nearDistance" => $row['tripDistance'],
-                    "nearTime" => date_format($row['startTime'],"d-M-Y H:i"),
+                    "nearTime" => date_format(date_create($row['startTime']),"d-M-Y H:i"),
                     "fromLat" => $row['srcLat'],
                     "fromLng" => $row['srcLng'],
                     "toLat" => $row['destLat'],

@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
         $db = new DbOperations(); 
         //var_dump($_REQUEST['lat']);
         //var_dump($_REQUEST['lng']); 
-        $r = $db->getNearPassLst($data['fromLat'],$data['fromLng']);
+        $r = $db->getNearPassLst($data['fromLat'],$data['fromLng'],$data['nearTime']);
         if($r == 1) {
             $response = array (
                 'success' => false,

@@ -684,7 +684,7 @@ class DbOperations
         }
     }
     
-    public function getNearPassLst($pLat,$pLng)
+    public function getNearPassLst($pLat,$pLng,$nTime)
     {
         
         try {
@@ -697,11 +697,12 @@ class DbOperations
                     startTime,
                     endTime,srcLat,srcLng,
                     destLat,destLng FROM UserPosts where
-                    status = 0 and startTime >= NOW() HAVING distance < '%s'
+                    status = 0 and startTime >= '%s' HAVING distance <= '%s'
                     ORDER BY tripDistance DESC LIMIT 20",
                 $mysqli->real_escape_string($pLat),
                 $mysqli->real_escape_string($pLng),
                 $mysqli->real_escape_string($pLat),
+                $mysqli->real_escape_string($nTime),
                 $mysqli->real_escape_string($radius)
                 );
             //echo $query;

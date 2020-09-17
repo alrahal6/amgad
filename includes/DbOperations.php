@@ -33,7 +33,7 @@ class DbOperations
     
     public function createUser($name,$phone,$otp)
     { 
-        $vehicle = "1";
+        $vehicle = "50";
         if ($res = $this->getUserByPhone($phone)) {
             //var_dump($res["id"]); 
             $updt = $this->con->prepare("UPDATE `Users` 
@@ -585,14 +585,12 @@ class DbOperations
         try {
             $mysqli = $this->con;
             $query = sprintf("SELECT u.id,userId,srcLat,srcLng,destLat, 
-destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress, 
-u.phone,seats,dropDownId,dropDownVal,price,selectorFlag,name, 
-status,notes,s.phone as cphone FROM UserPosts u left join Users s on s.id = u.captainId               
-where
-                    userId = '%s'
-                    ORDER BY u.id DESC LIMIT 1",
+            destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress, 
+            u.phone,seats,dropDownId,dropDownVal,price,selectorFlag,name, 
+            status,notes,s.phone as cphone FROM UserPosts u left join Users s on s.id = u.captainId               
+            where userId = '%s' ORDER BY u.id DESC LIMIT 1",
                 $mysqli->real_escape_string($userId)
-                );
+            );
             //echo $query;
             //exit;
             $result = $mysqli->query($query);
@@ -681,7 +679,7 @@ where
                     startTime,
                     endTime,srcLat,srcLng,
                     destLat,destLng FROM UserPosts where
-                    status = 0  HAVING distance < '%s'
+                    status = 0 and startTime >= NOW() HAVING distance < '%s'
                     ORDER BY tripDistance DESC LIMIT 20",
                 $mysqli->real_escape_string($pLat),
                 $mysqli->real_escape_string($pLng),

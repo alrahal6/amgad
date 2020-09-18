@@ -98,11 +98,12 @@ class DbOperations
         //return true;
     }
     
-    public function updateStatus($users,$fuser,$flag)
+    public function updateStatus($users,$fuser,$flag,$prevStatus)
     {
         // todo update status
         $sql = "update `UserPosts`
-         set status = ".$flag." , captainId = ".$fuser." where userId in (".implode(',',$users).") ";
+         set status = ".$flag." , captainId = ".$fuser." where userId in (".implode(',',$users).") 
+         and status = ".$prevStatus." ";
          //$this->removeUserLoc($id);
          if(mysqli_query($this->con, $sql)) {
              return true;
@@ -147,7 +148,7 @@ class DbOperations
         //return true;
     }
     
-    public function sendGeneral($data,$flag) {
+    public function sendGeneral($data,$flag,$prev) {
         $users = array();
         $amount = 0;
         foreach ($data as $d) {
@@ -160,7 +161,7 @@ class DbOperations
                 $this->push_notification_android($token,$d);
             }
         }
-        $this->updateStatus($users,$fuser, $flag);
+        $this->updateStatus($users,$fuser, $flag,$prev);
         $this->saveNotification(implode(",", $users), $flag,$fuser);
         if($flag == "13") {
             $this->deductComission($fuser,$amount,3);
@@ -182,25 +183,29 @@ class DbOperations
     }
     
     public function sendStarted($data) {
-        return $this->sendGeneral($data,"12");
+        return $this->sendGeneral($data,"12","6");
     }
     
     public function sendCompleted($data) {
-        return $this->sendGeneral($data,"13");
+        return $this->sendGeneral($data,"13","12");
     }
     
     public function sendCancelled($data) {
-        return $this->sendGeneral($data,"8");
+        return $this->sendGeneral($data,"8","6");
     }
     
     public function sendPassengerancelled($data) {
-        return true; 
-        //return false;
-        //return $this->sendGeneral($data,"4");
+        $sql = "UPDATE `UserPosts` SET  `status` = '4' WHERE `UserPosts`.`userId` = '".$data['userId']."'
+                and status = 0";
+        if(mysqli_query($this->con, $sql)){
+            return true;
+        } else {
+            return false;
+        }
     }
     
     public function sendConfirmation($data) {
-       return $this->sendGeneral($data,"6");
+       return $this->sendGeneral($data,"6","0");
     }
     
     private function isAvailable($id) {
@@ -697,12 +702,11 @@ class DbOperations
                     startTime,
                     endTime,srcLat,srcLng,
                     destLat,destLng FROM UserPosts where
-                    status = 0 and startTime >= '%s' HAVING distance <= '%s'
+                    status = 0 and startTime >= now() HAVING distance <= '%s'
                     ORDER BY tripDistance DESC LIMIT 20",
                 $mysqli->real_escape_string($pLat),
                 $mysqli->real_escape_string($pLng),
                 $mysqli->real_escape_string($pLat),
-                $mysqli->real_escape_string($nTime),
                 $mysqli->real_escape_string($radius)
                 );
             //echo $query;

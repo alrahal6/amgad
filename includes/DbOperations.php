@@ -195,6 +195,9 @@ class DbOperations
     }
     
     public function sendPassengerancelled($data) {
+        //@todo check weather confirmed or trip started?
+        // time being 
+        
         $sql = "UPDATE `UserPosts` SET  `status` = '4' WHERE `UserPosts`.`userId` = '".$data['userId']."'
                 and status = 0";
         if(mysqli_query($this->con, $sql)){
@@ -894,8 +897,19 @@ class DbOperations
         }
     }
     
+    
+    private function isBlockedUser($userId) {
+        if($userId == '1792') {
+            return true;
+        }
+        return false;
+    }
+    
     public function createPost($data)
-    {
+    {   
+        if($this->isBlockedUser($data['userId'])) {
+            return null;
+        }
         try {
             $array = array();
             $startTime = new DateTime($data['startTime']);

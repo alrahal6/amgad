@@ -7,7 +7,7 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
     if(isset($data['userId']) and isset($data['lat']) and isset($data['lng']) 
         and isset($data['distance']) ) { 
         $db = new DbOperations(); 
-        $r = $db->getNearDrivers($data['userId'],$data['lat'],$data['lng'],$data['distance']);
+        $r = $db->getNearDrivers($data['userId'],$data['lat'],$data['lng'],$data);
         //echo "after response";
         //var_dump($response);
         if($r == 1) {

@@ -47,7 +47,7 @@ function getTaxiPrice($distance) {
 }
 
 function getPoolPrice($distance) {
-    return ($distance * 11) + 16.5; 
+    return ($distance * 21) + 32; 
 }
 
 if($_SERVER['REQUEST_METHOD']=='POST') { 

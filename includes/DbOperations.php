@@ -371,6 +371,8 @@ class DbOperations
                 '".$distance."','".$duration."','".$price."', 
                 '".$driverId."', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 
                 CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"; 
+        //echo $sql;
+        //exit;
         if(mysqli_query($mySqlI, $sql)){
             return mysqli_insert_id($mySqlI); 
             // return 1;
@@ -542,6 +544,43 @@ class DbOperations
             return 0;
         }
         return 1; 
+    }
+    
+    public function setDestination($userId,$pLat,$pLng)
+    {
+        $sql = "INSERT INTO `DriverTargetLocation` (`userId`,`lat`,`lng`)
+                VALUES ('".$userId."', '".$pLat."','".$pLng."')";
+        //echo $sql;
+        //exit;
+        if(mysqli_query($this->con, $sql)) {
+            return 1;
+        } else {
+            return 2;
+        }
+        
+    }
+    
+    public function removeDestination($userId)
+    {
+        /*$sql = "INSERT INTO `DriverTargetLocation` (`userId`,`lat`,`lng`)
+                VALUES ('".$userId."', '".$pLat."','".$pLng."')";
+        //echo $sql;
+        //exit;
+        if(mysqli_query($this->con, $sql)) {
+            return 1;
+        } else {
+            return 2;
+        }*/
+        
+        $sql = "DELETE from `DriverTargetLocation`
+                WHERE `DriverTargetLocation`.`userId` = '".$userId."'";
+        //$this->removeUserLoc($id);
+        if(mysqli_query($this->con, $sql)) {
+            return 1;
+        } else {
+            return 2;
+        }
+        
     }
      
     public function insertLogin($id)
@@ -833,10 +872,12 @@ class DbOperations
      inner join VehicleType v on v.id = u.vehicleType
      where isTerminated = 0 and isOnRequest = 0 and typeName = '%s' and
      userId not in %s HAVING distance < '%s' ORDER BY distance LIMIT 0 , 1",*/
-    public function getNearDrivers($userId,$pLat,$pLng,$distance) 
+    public function getNearDrivers($userId,$pLat,$pLng,$data) 
     {   
         try {
             $array = array();
+            $tripId = $this->createNewTrip($userId,$pLat,$pLng,0,$data['pickupAddress'],$data['destLat'],$data['destLng'],
+                $data['destAddress'],$data['distance'],$data['duration'],$data['price']);
             $mysqli = $this->con;
             $mysqli->begin_transaction();
             $radius = 13;
@@ -845,7 +886,7 @@ class DbOperations
                 + sin( radians( '%s' ) ) * sin( radians( lat ) ) ) ) AS distance 
                 FROM DriverCurrentLocation d 
                 inner join Users u on u.id = d.userId 
-                inner join VehicleType v on v.id = u.vehicleType  
+                 
                 where isTerminated = 0 and isOnRequest = 0 and  
                 userId != %s  HAVING distance < '%s' ORDER BY distance LIMIT 0 , 10",
                 $mysqli->real_escape_string($pLat),
@@ -854,7 +895,7 @@ class DbOperations
                 $mysqli->real_escape_string($userId),
                 $mysqli->real_escape_string($radius)
             ); 
-            //echo $query; 
+            //echo $myQuery; 
             //$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
             //$txt = "John Doe\n";
             //fwrite($myfile, $query);
@@ -872,20 +913,28 @@ class DbOperations
                 return 1;
             }
             $i = 0;
+             /*$ins = "INSERT INTO `DriverTripRequest` (`tripId`,`driverId`,`requestResponseId`)
+             VALUES ('".$tripId."','".$row['userId']."','0')";
+             mysqli_query($mysqli, $ins);
+             //if(mysqli_query($mySqlI, $sql)){*/
+            /*$tripId = $this->createNewTrip($userId,$pLat,$pLng,0,$data['pickupAddress'],$destLat,$destLng,
+                $destAddress,$distance,$duration,$price);*/
+            
+                 // return 1;
+             //}
+             // update selected
+             /*$sql = "UPDATE `DriverCurrentLocation` SET  `isOnRequest` = '1'
+             WHERE `DriverCurrentLocation`.`userId` = '".$row['userId']."'";
+             mysqli_query($mysqli, $sql); */
             while ($row = mysqli_fetch_assoc($result)) { 
-                /*$ins = "INSERT INTO `DriverTripRequest` (`tripId`,`driverId`,`requestResponseId`)
-                VALUES ('".$tripId."','".$row['userId']."','0')";
-                mysqli_query($mysqli, $ins);  
-                // update selected  
-                $sql = "UPDATE `DriverCurrentLocation` SET  `isOnRequest` = '1' 
-                WHERE `DriverCurrentLocation`.`userId` = '".$row['userId']."'";
-                mysqli_query($mysqli, $sql); */
+               
                 $array[$i++] =
                 array( 
                     'userId'   => $row['userId'],
                     'distance' => $row['distance'],
                     'lat'      => $row['lat'],
                     'lng'      => $row['lng'],
+                    'tripId'   => $tripId
                 );
             }
             $mysqli->commit();

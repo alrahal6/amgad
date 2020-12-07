@@ -31,6 +31,24 @@ class DbOperations
         //$this->storage->registerStreamWrapper();
     }
     
+    public function repeatOnce($data)
+    {   
+        //$this->removeUserLoc($id);
+        //$i = "";
+        $startTime = new DateTime($data['newTime']);
+        $sql = "INSERT INTO `RepeatOnce`
+             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
+              `dropDownId`, `dropDownVal`, `newSeats`)
+             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
+             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."')";
+        //echo $sql;
+        if(mysqli_query($this->con, $sql)) {
+            return true;
+        } else {
+            return null; 
+        }   
+    }
+        
     public function createUser($name,$phone,$otp)
     { 
         $vehicle = "50";

@@ -48,6 +48,50 @@ class DbOperations
             return null; 
         }   
     }
+    
+    public function repeatRegular($data)
+    {
+        //$this->removeUserLoc($id);
+        //$i = "";
+        $startTime = new DateTime($data['newTime']);
+        $sql = "INSERT INTO `RepeatRegular`
+             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
+              `dropDownId`, `dropDownVal`, `newSeats`,`sun`, `mon`, `tue`, `wed`, `thu`, `fri`, `sat`)
+             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
+             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."',
+             '".$data['sun']."','".$data['mon']."','".$data['tue']."','".$data['wed']."','".$data['thu']."',
+             '".$data['fri']."','".$data['sat']."')";
+        //echo $sql;
+        if(mysqli_query($this->con, $sql)) {
+            return true;
+        } else {
+            return null;
+        }
+    }
+    
+    public function isRequired($data)
+    {
+        if($data['isRequired'] == true) { 
+            $sql = "INSERT INTO `IsRequiredNotify`
+                 (`id`, `userId`, `isRequired`)
+                 VALUES (null, '".$data['userId']."','".$data['isRequired']."')";
+            //echo $sql;
+            if(mysqli_query($this->con, $sql)) {
+                return true;
+            } else {
+                return null;
+            }
+        } else {
+            $sql = "DELETE from `IsRequiredNotify`
+                WHERE `IsRequiredNotify`.`userId` = '".$data['userId']."'";
+            //$this->removeUserLoc($id);
+            if(mysqli_query($this->con, $sql)) {
+                return true;
+            } else {
+                return null;
+            }
+        }
+    }
         
     public function createUser($name,$phone,$otp)
     { 

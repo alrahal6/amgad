@@ -39,7 +39,7 @@ function calculatePrice($distance,$flag) {
 function getTaxiPrice($distance) {
     $np = 0;
     if($distance > 3) {
-        $np = ((($distance - 3) * 17.6) + 70 + 30 );
+        $np = ((($distance - 3) * 28.6) + 70 + 30 );
     } else {
         $np = 70 + 30;
     }
@@ -47,7 +47,7 @@ function getTaxiPrice($distance) {
 }
 
 function getPoolPrice($distance) {
-    return ($distance * 21) + 32; 
+    return ($distance * 32) + 32; 
 }
 
 if($_SERVER['REQUEST_METHOD']=='POST') { 

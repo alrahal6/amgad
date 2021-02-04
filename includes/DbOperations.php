@@ -942,7 +942,7 @@ class DbOperations
                 $data['destAddress'],$data['distance'],$data['duration'],$data['price']);
             $mysqli = $this->con;
             $mysqli->begin_transaction();
-            $radius = 13;
+            $radius = 3;
             $myQuery = sprintf("SELECT userId, lat, lng,
                 ( 6371 * acos( cos( radians( '%s' ) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians( '%s' ) ) 
                 + sin( radians( '%s' ) ) * sin( radians( lat ) ) ) ) AS distance 

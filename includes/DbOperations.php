@@ -210,6 +210,21 @@ class DbOperations
         //return true;
     }
     
+    public function sendParticular($d) {
+        $flag = 4;
+        $fuser = $d['fUserId'];
+        $users[] = $d['tUserId'];
+        $d['mFlag'] = $flag;
+        //$amount += (int) $d['price'];
+        $token = $this->getToken($d['tUserId']);
+        if($token) {
+            $this->push_notification_android($token,$d);
+        }
+        $this->updateStatus($users,$fuser, $flag,1);
+        $this->saveNotification(implode(",", $users), $flag,$fuser);
+        
+    }
+    
     public function sendGeneral($data,$flag,$prev) {
         $users = array();
         $amount = 0;

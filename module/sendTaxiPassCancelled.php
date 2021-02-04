@@ -8,8 +8,8 @@ if($_SERVER['REQUEST_METHOD']=='POST') {
     if(isset($data[0]))
 		{ 
 		$db = new DbOperations();
-		if($db->sendCancelled($data)) {
-		    $response = $data[0];  
+		if($db->sendParticular($data)) {
+		    $response = $data;  
 		}
 	} 
 } 

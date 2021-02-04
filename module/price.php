@@ -39,9 +39,9 @@ function calculatePrice($distance,$flag) {
 function getTaxiPrice($distance) {
     $np = 0;
     if($distance > 3) {
-        $np = ((($distance - 3) * 28.6) + 70 + 30 );
+        $np = ((($distance - 3) * 28.6) + 90 + 30 );
     } else {
-        $np = 70 + 30;
+        $np = 90 + 30;
     }
     return $np;
 }

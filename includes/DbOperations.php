@@ -222,7 +222,7 @@ class DbOperations
         }
         $this->updateStatus($users,$fuser, $flag,1);
         $this->saveNotification(implode(",", $users), $flag,$fuser);
-        
+        return true;
     }
     
     public function sendGeneral($data,$flag,$prev) {

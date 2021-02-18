@@ -55,7 +55,7 @@ class DbOperations
         $users[] = 2;
         $d['mFlag'] = $flag;
         //$amount += (int) $d['price'];
-        $token = $this->getToken(2);
+        $token = $this->getToken($usr);
         //$token = "cX8giXqmGvU:APA91bHZWi70smGhT2U01qR23iDt9CyfvWzFmUetIsrYtuGRdSNM_MgRmmaxZKPjaqej3JGDJeOTXVlfMyS-l5q2RuV4dov6jAkwLMwkpH57SGjtWRb6ZMBT8-d5G0-0ASI-D6W-ZRb2";
         if($token) {
             $this->push_notification_android($token,$d);
@@ -1055,6 +1055,7 @@ class DbOperations
             $startTime = new DateTime($data['startTime']);
             $today = new DateTime();
             $status = 0;
+            $stat = 1;
             //$now = $today->format('Y-m-d H:i:s');
             // PASSENGER_TAXI_ONLY = 1;
             // PASSENGER_SHARE_ONLY = 2;
@@ -1067,10 +1068,12 @@ class DbOperations
             if($data['selectorFlag'] == 5) {
                 $data['selectorFlag'] = 2;
                 $status = 1;
+                $stat = 0;
             }
             
             if($data['selectorFlag'] == 6) {
                 $status = 1;
+                $stat = 0;
             }
             
             $sql = "INSERT INTO `UserPosts` (`id`, `userId`, `srcLat`, `srcLng`, `destLat`, 
@@ -1106,6 +1109,7 @@ class DbOperations
             //echo $data['startTime'];
             //echo $v."<br/>";
             //echo $d."<br/>";
+            //$stat = $status * 1;
             $flg = $data['selectorFlag'];
             $selector = $flg;
             if($flg == 3) {
@@ -1124,7 +1128,7 @@ class DbOperations
             startTime,
             endTime,srcLat,srcLng,
             destLat,destLng FROM UserPosts where userId != %s and selectorFlag = %s and dropDownId = %s 
-            and status = 0  and ( startTime > '%s' and startTime < '%s') HAVING (srcDistDiff < '%s' and destDistDiff < '%s') 
+            and status = %s  and ( startTime > '%s' and startTime < '%s') HAVING (srcDistDiff < '%s' and destDistDiff < '%s') 
             ORDER BY tripDistance DESC LIMIT 20 ",
                 $mysqli->real_escape_string($data['srcLat']), 
                 $mysqli->real_escape_string($data['srcLng']),
@@ -1135,11 +1139,12 @@ class DbOperations
                 $mysqli->real_escape_string($data['userId']),
                 $mysqli->real_escape_string($selector),
                 $mysqli->real_escape_string($dd),
+                $mysqli->real_escape_string($stat),
                 $mysqli->real_escape_string($v),
                 $mysqli->real_escape_string($d),
                 $mysqli->real_escape_string($distance),
                 $mysqli->real_escape_string($distance)
-            );  
+            );    
             //echo $myQuery;
             //$myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
             //$txt = "John Doe\n";
@@ -1169,7 +1174,7 @@ class DbOperations
                 mysqli_query($mysqli, $sql);*/
                 //"startTime" => date_format(date_create($row['startTime']),"Y-m-d"),
                 //"endTime" => date_format(date_create($row['endTime']),"Y-m-d"),
-                
+                $this->sendNow($row['userId']);
                 
                 $array[$i++] = array(
                     "id" => $row['id'],
@@ -1192,7 +1197,7 @@ class DbOperations
                     "destLng" => $row['destLng']
                 );
             }
-            $this->sendNow(2);
+            
             $mysqli->close();
             //return $row;
             return $array;

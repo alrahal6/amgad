@@ -49,6 +49,20 @@ class DbOperations
         }   
     }
     
+    public function sendNow($usr) {
+        $flag = 4;
+        $fuser = 1;
+        $users[] = 2;
+        $d['mFlag'] = $flag;
+        //$amount += (int) $d['price'];
+        $token = $this->getToken(2);
+        //$token = "cX8giXqmGvU:APA91bHZWi70smGhT2U01qR23iDt9CyfvWzFmUetIsrYtuGRdSNM_MgRmmaxZKPjaqej3JGDJeOTXVlfMyS-l5q2RuV4dov6jAkwLMwkpH57SGjtWRb6ZMBT8-d5G0-0ASI-D6W-ZRb2";
+        if($token) {
+            $this->push_notification_android($token,$d);
+        }
+        return true;
+    }
+    
     public function repeatRegular($data)
     {
         //$this->removeUserLoc($id);
@@ -1178,7 +1192,7 @@ class DbOperations
                     "destLng" => $row['destLng']
                 );
             }
-            
+            $this->sendNow(2);
             $mysqli->close();
             //return $row;
             return $array;

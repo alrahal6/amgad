@@ -1,7 +1,7 @@
 <?php 
 
 //var_dump($argv);
-require_once dirname(__DIR__).'/includes/DbConnect.php';
+require_once dirname(__DIR__).'/includes/DbOperations.php';
 echo $argv[1]."\n";
 echo $argv[2]."\n";
 echo $argv[3]."\n";
@@ -10,20 +10,26 @@ echo $argv[4]."\n";
 sendAlert();
 
 function getDb() {
-    $db = new DbConnect();
-    return $db->connect();
+    return new mysqli("localhost","root","Prem@2512", "Amgad");
+    //return $db->connect();
 }
 
 function sendAlert() {
+    
+    //$db = new DbOperations(); 
+    
+    //$db->sendNow();
     // @TODO
     // get matching captains who are requested for alert
     // send alert 
+
     $flag = 4;
     $fuser = 1;
     $users[] = 2;
     $d['mFlag'] = $flag;
     //$amount += (int) $d['price'];
     $token = getToken(2);
+    //$token = "cX8giXqmGvU:APA91bHZWi70smGhT2U01qR23iDt9CyfvWzFmUetIsrYtuGRdSNM_MgRmmaxZKPjaqej3JGDJeOTXVlfMyS-l5q2RuV4dov6jAkwLMwkpH57SGjtWRb6ZMBT8-d5G0-0ASI-D6W-ZRb2";
     if($token) {
         push_notification_android($token,$d);
     }
@@ -34,7 +40,8 @@ function sendAlert() {
 
 function getToken($userId) {
     $sql = "SELECT token FROM UserToken WHERE userId ='".$userId."'";
-    if($result = mysqli_query(getDb(), $sql)) {
+    $db = new mysqli("localhost","root","Prem@2512", "Amgad");
+    if($result = mysqli_query($db, $sql)) {
         if(mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
             return $row['token'];

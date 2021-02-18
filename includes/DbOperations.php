@@ -1288,4 +1288,10 @@ class DbOperations
         $stmt->store_result();
         return $stmt->num_rows > 0;
     }
+    
+    public function sendAlertNotification() {
+        // @todo fetch matching posts
+        // send alert 
+        // 
+    }
 }

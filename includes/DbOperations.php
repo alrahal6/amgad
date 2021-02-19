@@ -1174,7 +1174,9 @@ class DbOperations
                 mysqli_query($mysqli, $sql);*/
                 //"startTime" => date_format(date_create($row['startTime']),"Y-m-d"),
                 //"endTime" => date_format(date_create($row['endTime']),"Y-m-d"),
-                $this->sendNow($row['userId']);
+                if($stat) {
+                    $this->sendNow($row['userId']);
+                }
                 
                 $array[$i++] = array(
                     "id" => $row['id'],

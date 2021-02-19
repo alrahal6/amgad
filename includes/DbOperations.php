@@ -50,10 +50,10 @@ class DbOperations
     }
     
     public function sendNow($usr) {
-        $flag = 4;
-        $fuser = 1;
-        $users[] = 2;
-        $d['mFlag'] = $flag;
+        //$flag = 14;
+        //$fuser = 1;
+        //$users[] = 2;
+        $d['mFlag'] = 14;
         //$amount += (int) $d['price'];
         $token = $this->getToken($usr);
         //$token = "cX8giXqmGvU:APA91bHZWi70smGhT2U01qR23iDt9CyfvWzFmUetIsrYtuGRdSNM_MgRmmaxZKPjaqej3JGDJeOTXVlfMyS-l5q2RuV4dov6jAkwLMwkpH57SGjtWRb6ZMBT8-d5G0-0ASI-D6W-ZRb2";

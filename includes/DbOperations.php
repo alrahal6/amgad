@@ -31,23 +31,7 @@ class DbOperations
         //$this->storage->registerStreamWrapper();
     }
     
-    public function repeatOnce($data)
-    {   
-        //$this->removeUserLoc($id);
-        //$i = "";
-        $startTime = new DateTime($data['newTime']);
-        $sql = "INSERT INTO `RepeatOnce`
-             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
-              `dropDownId`, `dropDownVal`, `newSeats`)
-             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
-             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."')";
-        //echo $sql;
-        if(mysqli_query($this->con, $sql)) {
-            return true;
-        } else {
-            return null; 
-        }   
-    }
+    
     
     public function sendNow($usr) {
         //$flag = 14;
@@ -63,25 +47,6 @@ class DbOperations
         return true;
     }
     
-    public function repeatRegular($data)
-    {
-        //$this->removeUserLoc($id);
-        //$i = "";
-        $startTime = new DateTime($data['newTime']);
-        $sql = "INSERT INTO `RepeatRegular`
-             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
-              `dropDownId`, `dropDownVal`, `newSeats`,`sun`, `mon`, `tue`, `wed`, `thu`, `fri`, `sat`)
-             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
-             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."',
-             '".$data['sun']."','".$data['mon']."','".$data['tue']."','".$data['wed']."','".$data['thu']."',
-             '".$data['fri']."','".$data['sat']."')";
-        //echo $sql;
-        if(mysqli_query($this->con, $sql)) {
-            return true;
-        } else {
-            return null;
-        }
-    }
     
     public function isRequired($data)
     {
@@ -1314,5 +1279,179 @@ class DbOperations
         // @todo fetch matching posts
         // send alert 
         // 
+    }
+    
+    public function repeatOnce($data)
+    {
+        //$this->removeUserLoc($id);
+        //$i = "";
+        $startTime = new DateTime($data['newTime']);
+        $sql = "INSERT INTO `RepeatOnce`
+             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
+              `dropDownId`, `dropDownVal`, `newSeats`)
+             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
+             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."')";
+        //echo $sql;
+        if(mysqli_query($this->con, $sql)) {
+            $this->getAndInsertPostById($data['tripId'],$startTime,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']);
+            return true;
+        } else {
+            return null;
+        }
+    }
+    
+    public function repeatRegular($data)
+    {
+        $startTime = new DateTime($data['newTime']);
+        $sql = "INSERT INTO `RepeatRegular`
+             (`id`, `tripId`, `newTime`, `newPrice`, `entryTime`,
+              `dropDownId`, `dropDownVal`, `newSeats`,`sun`, `mon`, `tue`, `wed`, `thu`, `fri`, `sat`)
+             VALUES (null, '".$data['tripId']."', '".$startTime->format('Y-m-d H:i:s')."','".$data['newPrice']."',now(),
+             '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."',
+             '".$data['sun']."','".$data['mon']."','".$data['tue']."','".$data['wed']."','".$data['thu']."',
+             '".$data['fri']."','".$data['sat']."')";
+        //echo $sql;
+        if(mysqli_query($this->con, $sql)) {
+            if($this->isTodayValid($data['sun'],$data['mon'],$data['tue'],
+                $data['wed'],$data['thu'],$data['fri'],$data['sat'])) {
+                    $this->getAndInsertPostById($data['tripId'],$startTime,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']); 
+            }
+            return true;
+        } else {
+            return null;
+        }
+    }
+    
+    
+    public function getAndInsertAllPost() {
+        
+    }
+    
+    public function insertAutoPost($data,$nDate,$nGender,$nGenderVal,$nSeats) { 
+        try {
+            $array = array();
+            //$startTime = new DateTime($data['startTime']);
+            $today = new DateTime();
+            $status = 0;
+            $stat = 1;
+            $mysqli = $this->con;
+            //$mysqli->begin_transaction();
+            if($data['selectorFlag'] == 5) {
+                $data['selectorFlag'] = 2;
+                $status = 1;
+                $stat = 0;
+            }
+            
+            if($data['selectorFlag'] == 6) {
+                $status = 1;
+                $stat = 0;
+            }
+        $sql = "INSERT INTO `UserPosts` (`id`, `userId`, `srcLat`, `srcLng`, `destLat`,
+            `destLng`, `tripDistance`, `startTime`, `endTime`, `sourceAddress`, `destinationAddress`,
+            `phone`, `seats`, `dropDownId`, `dropDownVal`, `price`, `selectorFlag`, `name`, `status`,`notes`)
+             VALUES (NULL,'".$data['userId']."','".$data['srcLat']."','".$data['srcLng']."','".$data['destLat']."'
+             ,'".$data['destLng']."','".$data['tripDistance']."','".$nDate->format('Y-m-d H:i:s')."','".$today->format('Y-m-d H:i:s')."'
+             ,'".$data['sourceAddress']."','".$data['destinationAddress']."','".$data['phone']."','".$nSeats."'
+             ,'".$nGender."','".$nGenderVal."','".$data['price']."','".$data['selectorFlag']."'
+             ,'".$data['name']."',".$status.",'".$data['notes']."')"; 
+        
+            if(mysqli_query($this->con, $sql)) {
+                //return 1;
+                $x = $data['tripDistance'];
+                //"PT15M"
+                $sDate = new DateTime($data['startTime']);
+                $sDate->add(new DateInterval('PT30M'));
+                $d = $sDate->format('Y-m-d H:i:s');
+                //date("Y/m/d H:i:s", strtotime("+30 minutes", $t));
+                $v = date('Y-m-d H:i:s',strtotime('-30 minutes',strtotime($data['startTime'])));
+                $mysqli->close();
+                //return $row;
+                return $array;
+            } else {
+                return null;
+            }
+        } catch (Exception $e) {
+            //$mysqli->rollback(); 
+            return null; 
+        }
+    }
+    
+    public function getAndInsertPostById($id,$nDate,$nGender,$nSeats) {
+        try {
+            $mysqli = $this->con;
+            $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
+                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
+                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
+                status,notes FROM UserPostsHistory where
+                    id = '%s'
+                    ORDER BY id ASC",
+                $mysqli->real_escape_string($id)
+                );
+            //echo $query;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $this->insertAutoPost($row,$nDate,$nGender,$nSeats); 
+            }
+            $mysqli->close();
+            //return $array;
+            return true;
+            //return $response;
+        } catch (Exception $e) {
+            //$mysqli->rollback();
+            return true;
+        }
+    }
+    
+    private function isTodayValid($sun,$mon,$tues,$wed,$thu,$fri,$sat) {
+        $day = date('l');
+        switch ($day) {
+            case Sunday:
+                if($sun == 1) {
+                    return true;
+                }
+                break;
+            case Monday:
+                if($mon == 1) {
+                    return true;
+                }
+                break;
+            case Tuesday:
+                if($tues == 1) {
+                    return true;
+                }
+                break;
+            case Wednesday:
+                if($wed == 1) {
+                    return true;
+                }
+                break;
+            case Thursday:
+                if($thu == 1) {
+                    return true;
+                }
+                break;
+            case Friday:
+                if($fri == 1) {
+                    return true;
+                }
+                break;
+            case Saturday:
+                if($sat == 1) {
+                    return true;
+                }
+                break;
+            default:
+                return false;
+                break;
+        }
+        return false;
+        
     }
 }

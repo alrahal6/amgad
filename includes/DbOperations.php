@@ -1324,7 +1324,9 @@ class DbOperations
     
     
     public function getAndInsertAllPost() {
-        
+        // get all applied today day 
+        // getTodayDay()
+        return true; 
     }
     
     public function insertAutoPost($data,$nDate,$nGender,$nGenderVal,$nSeats) { 
@@ -1376,7 +1378,7 @@ class DbOperations
         }
     }
     
-    public function getAndInsertPostById($id,$nDate,$nGender,$nSeats) {
+    public function getAndInsertPostById($id,$nDate,$nGender,$nGenderVal,$nSeats) {
         try {
             $mysqli = $this->con;
             $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
@@ -1397,9 +1399,9 @@ class DbOperations
             }
             $i = 0;
             while ($row = mysqli_fetch_assoc($result)) {
-                $this->insertAutoPost($row,$nDate,$nGender,$nSeats); 
+                $this->insertAutoPost($row,$nDate,$nGender,$nGenderVal,$nSeats); 
             }
-            $mysqli->close();
+            //$mysqli->close();
             //return $array;
             return true;
             //return $response;
@@ -1412,37 +1414,37 @@ class DbOperations
     private function isTodayValid($sun,$mon,$tues,$wed,$thu,$fri,$sat) {
         $day = date('l');
         switch ($day) {
-            case Sunday:
+            case 'Sunday':
                 if($sun == 1) {
                     return true;
                 }
                 break;
-            case Monday:
+            case 'Monday':
                 if($mon == 1) {
                     return true;
                 }
                 break;
-            case Tuesday:
+            case 'Tuesday':
                 if($tues == 1) {
                     return true;
                 }
                 break;
-            case Wednesday:
+            case 'Wednesday':
                 if($wed == 1) {
                     return true;
                 }
                 break;
-            case Thursday:
+            case 'Thursday':
                 if($thu == 1) {
                     return true;
                 }
                 break;
-            case Friday:
+            case 'Friday':
                 if($fri == 1) {
                     return true;
                 }
                 break;
-            case Saturday:
+            case 'Saturday':
                 if($sat == 1) {
                     return true;
                 }
@@ -1454,4 +1456,34 @@ class DbOperations
         return false;
         
     }
+    
+    private function getTodayDay() {
+        $day = date('l'); 
+        $t = "";
+        switch ($day) {
+            case 'Sunday':
+                $t = "sun";
+                break;
+            case 'Monday':
+                $t = "mon";
+                break;
+            case 'Tuesday':
+                $t =  "tue";
+                break;
+            case 'Wednesday':
+                $t =  "wed";
+                break;
+            case 'Thursday':
+                $t =  "thu";
+                break;
+            case 'Friday':
+                $t = "fri";
+                break;
+            case 'Saturday':
+                $t =  "sat";
+                break;
+        }
+        return $t;
+    }
+    
 }

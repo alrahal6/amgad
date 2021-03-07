@@ -31,6 +31,52 @@ class DbOperations
         //$this->storage->registerStreamWrapper();
     }
     
+    private function calculatePrice($distance,$flag) {
+        $np = 0;
+        //$dist = value.distance;
+        switch ($flag) {
+            case "1":
+                $np = $this->getTaxiPrice($distance);
+                break;
+            case "2":
+                $np = $this->getPoolPrice($distance);
+                break;
+            case "3":
+                $np = 0;
+                break;
+            case "4":
+                $np = $this->getTaxiPrice($distance);
+                break;
+            case "5":
+                $np = $this->getPoolPrice($distance);
+                break;
+            case "6":
+                $np = 0;
+                break;
+            default:
+                $np = 0; 
+        }
+        /*if($distance > 3) {
+         $np = ((($distance - 3) * 17.6) + 70 + 30 );
+         } else {
+         $np = 70 + 30;
+         }*/
+        return $np;
+    }
+    
+    private function getTaxiPrice($distance) {
+        $np = 0;
+        if($distance > 3) {
+            $np = ((($distance - 3) * 28.6) + 90 + 30 );
+        } else {
+            $np = 90 + 30;
+        }
+        return $np;
+    }
+    
+    private function getPoolPrice($distance) {
+        return ($distance * 32) + 32;
+    }
     
     
     public function sendNow($usr) {
@@ -1337,6 +1383,7 @@ class DbOperations
             $status = 0;
             $stat = 1;
             $mysqli = $this->con;
+            $newPrice = $this->calculatePrice($data['tripDistance'], $data['selectorFlag']); 
             //$mysqli->begin_transaction();
             if($data['selectorFlag'] == 5) {
                 $data['selectorFlag'] = 2;
@@ -1354,7 +1401,7 @@ class DbOperations
              VALUES (NULL,'".$data['userId']."','".$data['srcLat']."','".$data['srcLng']."','".$data['destLat']."'
              ,'".$data['destLng']."','".$data['tripDistance']."','".$nDate->format('Y-m-d H:i:s')."','".$today->format('Y-m-d H:i:s')."'
              ,'".$data['sourceAddress']."','".$data['destinationAddress']."','".$data['phone']."','".$nSeats."'
-             ,'".$nGender."','".$nGenderVal."','".$data['price']."','".$data['selectorFlag']."'
+             ,'".$nGender."','".$nGenderVal."','".$newPrice."','".$data['selectorFlag']."'
              ,'".$data['name']."',".$status.",'".$data['notes']."')"; 
         
             if(mysqli_query($this->con, $sql)) {

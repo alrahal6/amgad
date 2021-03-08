@@ -1371,10 +1371,61 @@ class DbOperations
     
     public function getAndInsertAllPost() {
         // get all applied today day 
-        // getTodayDay()
+        
+        //$where = " where 1 = 1 ";
+        $where = $this->getTodayDay();
+        
+        $mysqli = $this->con;
+        $query = sprintf("SELECT `id`, `tripId`, `newTime`, `newPrice`, `entryTime`, 
+                         `dropDownId`, `dropDownVal`, `newSeats`, `sun`, `mon`, `tue`, 
+                         `wed`, `thu`, `fri`, `sat` FROM `RepeatRegular`  %s ",
+            $mysqli->real_escape_string($where)
+            );
+        //echo $query;
+        $result = $mysqli->query($query);
+        if (!$result) {
+            return 1;
+        }
+        if($result->num_rows == 0) {
+            return 1;
+        }
+        $i = 0;
+        while ($row = mysqli_fetch_assoc($result)) {
+            //$this->repeatRegular($row);
+            $startTime = new DateTime($row['newTime']);
+            $id = $row['tripId'];
+            $nGender = $row['dropDownId'];
+            $nGenderVal = $row['dropDownVal'];
+            $nSeats = $row['newSeats'];
+            
+            //var_dump($id); 
+            /*$query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
+                destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
+                phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
+                status,notes FROM UserPostsHistory where
+                    id = '%s'
+                    ORDER BY id ASC",
+                $mysqli->real_escape_string($id)
+                );
+            //echo $query;
+            //exit;
+            $result = $mysqli->query($query);
+            if (!$result) {
+                return 1;
+            }
+            if($result->num_rows == 0) {
+                return 1;
+            }
+            $i = 0;
+            while ($row1 = mysqli_fetch_assoc($result)) {
+                $this->insertAutoPost($row1,$startTime,$row['dropDownId'],$row['dropDownVal'],$row['newSeats']); 
+            }*/
+            //var_dump($id);
+            $this->getAndInsertPostById($id,$startTime,$nGender,$nGenderVal,$nSeats); 
+        }
         return true; 
     }
-    
+        
     public function insertAutoPost($data,$nDate,$nGender,$nGenderVal,$nSeats) { 
         try {
             $array = array();
@@ -1413,7 +1464,7 @@ class DbOperations
                 $d = $sDate->format('Y-m-d H:i:s');
                 //date("Y/m/d H:i:s", strtotime("+30 minutes", $t));
                 $v = date('Y-m-d H:i:s',strtotime('-30 minutes',strtotime($data['startTime'])));
-                $mysqli->close();
+                //$mysqli->close();
                 //return $row;
                 return $array;
             } else {
@@ -1428,15 +1479,17 @@ class DbOperations
     public function getAndInsertPostById($id,$nDate,$nGender,$nGenderVal,$nSeats) {
         try {
             $mysqli = $this->con;
+            //var_dump($id);
             $query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
                 destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
                 phone,seats,dropDownId,dropDownVal,price,selectorFlag,name,
                 status,notes FROM UserPostsHistory where
-                    id = '%s'
-                    ORDER BY id ASC",
-                $mysqli->real_escape_string($id)
+                    id = ".$id."
+                    ORDER BY id ASC"
+                //$mysqli->real_escape_string($id)
                 );
             //echo $query;
+            //exit;
             $result = $mysqli->query($query);
             if (!$result) {
                 return 1;
@@ -1453,6 +1506,7 @@ class DbOperations
             return true;
             //return $response;
         } catch (Exception $e) {
+            echo $e->getMessage();
             //$mysqli->rollback();
             return true;
         }
@@ -1509,25 +1563,25 @@ class DbOperations
         $t = "";
         switch ($day) {
             case 'Sunday':
-                $t = "sun";
+                $t = " where sun = 1 ";
                 break;
             case 'Monday':
-                $t = "mon";
+                $t = " where mon = 1 ";
                 break;
             case 'Tuesday':
-                $t =  "tue";
+                $t =  " where tue = 1 ";
                 break;
             case 'Wednesday':
-                $t =  "wed";
+                $t =  " where wed = 1 ";
                 break;
             case 'Thursday':
-                $t =  "thu";
+                $t =  " where thu = 1 ";
                 break;
             case 'Friday':
-                $t = "fri";
+                $t = " where fri = 1 ";
                 break;
             case 'Saturday':
-                $t =  "sat";
+                $t =  " where sat = 1 ";
                 break;
         }
         return $t;

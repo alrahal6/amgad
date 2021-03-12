@@ -1339,7 +1339,8 @@ class DbOperations
              '".$data['dropDownId']."','".$data['dropDownVal']."','".$data['newSeats']."')";
         //echo $sql;
         if(mysqli_query($this->con, $sql)) {
-            $this->getAndInsertPostById($data['tripId'],$startTime,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']);
+            $newDate = $startTime->format('Y-m-d H:i:s');
+            $this->getAndInsertPostById($data['tripId'],$newDate,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']);
             return true;
         } else {
             return null;
@@ -1360,7 +1361,8 @@ class DbOperations
         if(mysqli_query($this->con, $sql)) {
             if($this->isTodayValid($data['sun'],$data['mon'],$data['tue'],
                 $data['wed'],$data['thu'],$data['fri'],$data['sat'])) {
-                    $this->getAndInsertPostById($data['tripId'],$startTime,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']); 
+                    $newDate = $startTime->format('Y-m-d H:i:s');
+                    $this->getAndInsertPostById($data['tripId'],$newDate,$data['dropDownId'],$data['dropDownVal'],$data['newSeats']); 
             }
             return true;
         } else {
@@ -1397,7 +1399,7 @@ class DbOperations
             $nGender = $row['dropDownId'];
             $nGenderVal = $row['dropDownVal'];
             $nSeats = $row['newSeats'];
-            
+            $newDate = date("Y-m-d")." ".$startTime->format('H:i:s');
             //var_dump($id); 
             /*$query = sprintf("SELECT id,userId,srcLat,srcLng,destLat,
                 destLng,tripDistance,startTime,endTime,sourceAddress,destinationAddress,
@@ -1421,7 +1423,7 @@ class DbOperations
                 $this->insertAutoPost($row1,$startTime,$row['dropDownId'],$row['dropDownVal'],$row['newSeats']); 
             }*/
             //var_dump($id);
-            $this->getAndInsertPostById($id,$startTime,$nGender,$nGenderVal,$nSeats); 
+            $this->getAndInsertPostById($id,$newDate,$nGender,$nGenderVal,$nSeats); 
         }
         return true; 
     }
@@ -1450,7 +1452,7 @@ class DbOperations
             `destLng`, `tripDistance`, `startTime`, `endTime`, `sourceAddress`, `destinationAddress`,
             `phone`, `seats`, `dropDownId`, `dropDownVal`, `price`, `selectorFlag`, `name`, `status`,`notes`)
              VALUES (NULL,'".$data['userId']."','".$data['srcLat']."','".$data['srcLng']."','".$data['destLat']."'
-             ,'".$data['destLng']."','".$data['tripDistance']."','".$nDate->format('Y-m-d H:i:s')."','".$today->format('Y-m-d H:i:s')."'
+             ,'".$data['destLng']."','".$data['tripDistance']."','".$nDate."','".$today->format('Y-m-d H:i:s')."'
              ,'".$data['sourceAddress']."','".$data['destinationAddress']."','".$data['phone']."','".$nSeats."'
              ,'".$nGender."','".$nGenderVal."','".$newPrice."','".$data['selectorFlag']."'
              ,'".$data['name']."',".$status.",'".$data['notes']."')"; 
